@@ -1,0 +1,47 @@
+ <!-- Draggable DIV -->
+ <!DOCTYPE html>
+ <html>
+     <head>
+         <link rel="stylesheet" type="text/css" href="map.css">
+         <style>
+             .inner-border::-webkit-scrollbar { 
+                display: none; 
+            } 
+        </style>
+        <script>
+                (function(obj)
+                {
+                    ue.game = {};
+                    ue.game.callevent = function(name, ...args)
+                    {
+                        if (typeof name != "string") {
+                            return;
+                        }
+            
+                        if (args.length == 0) {
+                            obj.callevent(name, "")
+                        }
+                        else {
+                            let params = []
+                            for (let i = 0; i < args.length; i++) {
+                                params[i] = args[i];
+                            }
+                            obj.callevent(name, JSON.stringify(params));
+                        }
+                    };
+                })(ue.game);
+                CallEvent = ue.game.callevent;
+        </script>
+     </head>
+     <body style="background-color:rgb(45, 106, 175); overflow: hidden;">
+        <div id="mapdiv" style="position: absolute; left:-40; top:-431;">
+            
+            <img src="map.png" id="mapimg" draggable="false" style="z-index:1; position:relative; vertical-align: top;"/>
+            <img src="playermarker.png" id="playermarker" draggable="false" style="z-index:2; position:absolute; top:0px; left:0px;"/>
+
+        </div> 
+        <script type="text/javascript" src="map.js">
+            
+        </script>
+     </body>
+ </html>
