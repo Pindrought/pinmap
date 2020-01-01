@@ -51,7 +51,15 @@
         <div id="mapdiv" style="position: absolute; left:-40; top:-431;">
             <img src="map.png" id="mapimg" draggable="false"/>
             <img src="playermarker.png" id="playermarker" draggable="false"/>
+            <img src ="destination.png" id="destinationmarker" draggable="false" style="display:none"/>
         </div> 
+
+        <div id="menu" class="menu" style="display:none;"> 
+            <ul class="menu-options">
+                <li class="menu-option" onclick="MenuOptionClicked('SetDestination');">Set Destination</li>
+                <li class="menu-option" onclick="MenuOptionClicked('ClearDestination');">Clear Destination</li>
+            </ul>
+        </div>
 
         <script type="text/javascript" src="map.js"></script>
      </body>

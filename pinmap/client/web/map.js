@@ -25,6 +25,38 @@ var runningFromBrowser = true;
 function CustomContextMenu(e) //Custom right click to allow assigning destinations
 {
     e.preventDefault();
+    var menu = document.getElementById("menu");
+    menu.style.display = "block";
+    menu.style.left = e.pageX + 'px';
+    menu.style.top = e.pageY + 'px';
+}
+
+function MenuOptionClicked(option)
+{
+    var menu = document.getElementById("menu");
+    menu.style.display = "none";
+    var destinationMarker = document.getElementById("destinationmarker");
+    if (option == "SetDestination")
+    {
+        var mapdiv = document.getElementById('mapdiv');
+        var markerX = parseInt(menu.style.left) - parseInt(mapdiv.style.left);
+        var markerY = parseInt(menu.style.top) - parseInt(mapdiv.style.top);
+        markerX = markerX / mapScale;
+        markerY = markerY / mapScale;
+        destinationMarker.worldX = MapToWorldX(markerX);
+        destinationMarker.worldY = MapToWorldY(markerY);
+        destinationMarker.style.display = "block";
+
+        destinationMarker.style.left = (WorldToMapX(destinationMarker.worldX) * mapScale -16) + 'px';
+        destinationMarker.style.top = (WorldToMapY(destinationMarker.worldY) * mapScale - 32) + 'px';
+
+        CallEvent("UpdateMapDestination", destinationMarker.worldX, destinationMarker.worldY)
+    }
+    if (option == "ClearDestination")
+    {
+        destinationMarker.style.display = "none";
+        CallEvent("ClearMapDestination", null);
+    }
 }
 
 function OnLoad()
@@ -37,7 +69,7 @@ function OnLoad()
     var mapdiv = document.getElementById('mapdiv');
     mapdiv.style.top = mapX + 'px';
     mapdiv.style.left = mapY + 'px';
-    window.addEventListener('mousedown', MouseDown); //mousedown to start drag
+    window.addEventListener('mousedown', MouseDown, false); //mousedown to start drag
     window.addEventListener('mouseup', MouseUp); //mouseup to stop drag
     window.addEventListener('keydown', CloseMap); //keydown to close map with callback when 'M' is pressed
     window.addEventListener('wheel', MouseScroll); //mouse wheel event for scrolling
@@ -172,6 +204,31 @@ function UpdateMousePos(e)
 
 function MouseDown(e)
 {
+    if (e.button == 2) //If right click, exit since right click is just used for context menu
+    {
+        return;
+    }
+    if (e.button == 1) //middle mouse click
+    {
+        e.preventDefault(); //We prevent default for middle mouse click so user can drag around even when zoomed in
+    }
+    var menu = document.getElementById("menu");
+    if (menu.style.display == "block")
+    {
+        var leftX = parseInt(menu.style.left);
+        var rightX = leftX + menu.offsetWidth;
+        var topY = parseInt(menu.style.top);
+        var bottomY = topY + menu.offsetHeight;
+        if (e.clientX >= leftX &&
+            e.clientX <= rightX &&
+            e.clientY >= topY &&
+            e.clientY <= bottomY)
+        {
+            return;
+        }
+        menu.style.display = "none";
+    }
+
     initialMouseX = e.clientX;
     initialMouseY = e.clientY;
     var mapdiv = document.getElementById('mapdiv');
@@ -229,7 +286,6 @@ function MouseScroll(e)
         {
             mapScale = mapScale / 0.8;
         }
-        
     }
     else //zooming out
     {
@@ -276,6 +332,16 @@ function WorldToMapY(worldY)
     return (worldY + 231101.3928571428) / 242.5535714285714;
 }
 
+function MapToWorldX(mapX)
+{
+    return 241.041095890411*mapX - 234002.2054794521;
+}
+
+function MapToWorldY(mapY)
+{
+    return 242.5535714285714*mapY - 231101.3928571428;
+}
+
 function RefreshPlayerMarker() //Called when map is resized to reposition player marker.
 {
     var playerMarker = document.getElementById('playermarker');
@@ -293,6 +359,13 @@ function RefreshBlips() //Called when map is resized to reposition player marker
             blip.style.top = (WorldToMapY(blip.worldY) * mapScale -12) + 'px';
         });
     });
+    //Refresh destination (if one exists)
+    var destinationMarker = document.getElementById("destinationmarker");
+    if (destinationMarker.style.display == 'block') //If destination marker is visible, update position
+    {
+        destinationMarker.style.left = (WorldToMapX(destinationMarker.worldX) * mapScale -16) + 'px';
+        destinationMarker.style.top = (WorldToMapY(destinationMarker.worldY) * mapScale - 32) + 'px';
+    }
 }
 
 function UpdatePlayerPosition(worldX, worldY, worldZ, angle) //Called from map.lua

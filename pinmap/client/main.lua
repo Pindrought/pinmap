@@ -56,6 +56,24 @@ function InitializeMapValues() --This will send the width/height of the map whic
 end
 AddEvent("OnMapUILoaded", InitializeMapValues)
 
+local destinationWP = nil
+function UpdateMapDestination(worldX, worldY)
+	_, _, _, _, worldZ = LineTrace(worldX, worldY, 3000, worldX, worldY, -3000)
+	if (destinationWP ~= nil) then
+		DestroyWaypoint(destinationWP)
+	end
+	destinationWP = CreateWaypoint(worldX, worldY, worldZ, "Destination")
+end
+AddEvent("UpdateMapDestination", UpdateMapDestination)
+
+function ClearMapDestination()
+	if (destinationWP ~= nil) then
+		DestroyWaypoint(destinationWP)
+		destinationWP = nil
+	end
+end
+AddEvent("ClearMapDestination", ClearMapDestination)
+
 function UpdatePositionOnMap()
 	if (isMapOpen == true) then
 		local x, y, z = GetPlayerLocation()

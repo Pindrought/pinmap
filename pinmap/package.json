@@ -12,6 +12,7 @@
 		"client/web/map.js",
 		"client/web/map.png",
 		"client/web/playermarker.png",
+		"client/web/destination.png",
 		"client/web/market.png",
 		"client/web/gunstore.png"
 	]
