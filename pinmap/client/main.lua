@@ -7,14 +7,11 @@ local gui = nil
 
 local function OnPackageStart()
 	local screenX, screenY = GetScreenSize()
-	mapWidth = screenX * 0.8
-	mapHeight = screenY * 0.8
-	gui = CreateWebUI(0, 0, mapWidth, mapHeight)
+	gui = CreateWebUI(0, 0, 0, 0)
 	LoadWebFile(gui, "http://asset/pinmap/client/web/map.html")
-	AddPlayerChat("Creating web with dimensions [" .. mapWidth .. ", " .. mapHeight .. "]")
 
-	SetWebAlignment(gui, 0.5, 0.5)
-	SetWebAnchors(gui, 0.5, 0.5, 0.5, 0.5)
+	SetWebAlignment(gui, 0, 0)
+	SetWebAnchors(gui, 0.1, 0.1, 0.9, 0.9)
 
 	SetWebVisibility(gui, WEB_HIDDEN)
 end
@@ -41,7 +38,7 @@ function OnKeyPress(key)
 end
 AddEvent("OnKeyPress", OnKeyPress)
 
-function InitializeMapValues()
+function InitializeMapValues() --This will send the width/height of the map which will be used by the WebUI to make sure user does not drag map off screen as well as send the legend info
 	local screenX, screenY = GetScreenSize()
 	mapWidth = screenX * 0.8
 	mapHeight = screenY * 0.8

@@ -9,6 +9,8 @@
             } 
         </style>
         <script>
+            if (typeof ue !== 'undefined') //If we're running game
+            {
                 (function(obj)
                 {
                     ue.game = {};
@@ -31,14 +33,19 @@
                     };
                 })(ue.game);
                 CallEvent = ue.game.callevent;
+            }
+            else //If we're running in Browser
+            {
+                CallEvent = function() {}; //Define CallEvent to prevent errors.
+            }
         </script>
      </head>
-     <body style="background-color:rgb(45, 106, 175); overflow: hidden;">
-        <div id="legend" style="width:300px;padding-bottom:20px; background-color: rgba(0, 0, 0, 0.5); border-radius: 20px; text-align:center; align-content: center; z-index:4; position:absolute; left:0; top:0;">
+     <body>
+        <div id="legend">
             
-            <label style="top:10px; font-size: 28px; display:block; border-top-right-radius: 20px; border-top-left-radius: 20px; background-color: rgba(0,0,0,0.5);">Legend</label>
+            <label id="legend-header">Legend</label>
             
-            <div id="legendkey" style="align-content: center; text-align: left; display:inline-block;">
+            <div id="legend-key">
             </div>
         </div>
         <div id="mapdiv" style="position: absolute; left:-40; top:-431;">

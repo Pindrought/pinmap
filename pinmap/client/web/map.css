@@ -1,4 +1,4 @@
-img
+img, label, div /*disable highlighting/selecting for img, label, and divs*/
 {
     -khtml-user-select: none;
     -o-user-select: none;
@@ -6,26 +6,83 @@ img
     -webkit-user-select: none;
     user-select: none;
 }
-label
+
+body
 {
-    -khtml-user-select: none;
-    -o-user-select: none;
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    user-select: none;
+    background-color:rgb(45, 106, 175); /*Ocean color*/
+    overflow: hidden; /*No scrollbar*/
+}
+
+label /*make all text white & bold*/
+{
     color: #FFF;
     font-weight: bold;
 }
-div
+
+#legend
 {
-    -khtml-user-select: none;
-    -o-user-select: none;
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    user-select: none;
+    width:300px;
+    padding-bottom:20px; 
+    background-color: rgba(0, 0, 0, 0.5); 
+    border-radius: 20px; 
+    text-align:center; 
+    align-content: center; 
+    z-index:4; 
+    position:absolute; 
+    right:0; 
+    top:20px;
+    margin-right:20px;
+}
+
+#legend-header
+{
+    top:10px; 
+    font-size: 28px; 
+    display:block; 
+    border-top-right-radius: 20px; 
+    border-top-left-radius: 20px; 
+    background-color: rgba(0,0,0,0.5);
+}
+
+#legend-key
+{
+    align-content: center; 
+    text-align: left; 
+    display:inline-block;
+}
+
+.legend-img
+{
+    width: 24px;
+    height: 24px;
+    position: relative;
+    top: 5px;
+}
+
+#mapimg
+{
+    z-index:1; 
+    position:relative; 
+    vertical-align: top;
+}
+
+#playermarker
+{
+    z-index:3; 
+    position:absolute; 
+    top:0px; 
+    left:0px;
 }
 
 
+.blip /*blip on map*/
+{
+    width: 24px;
+    height: 24px;
+    position: absolute;
+}
+
+/*the checkbox code is pretty copy&paste barely modified - i'll go through and remove unnecessary attributes later*/
 .checkbox-custom 
 {
     padding-right: 20px;

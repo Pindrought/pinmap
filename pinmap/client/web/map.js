@@ -18,13 +18,17 @@ var mapX = -40;
 var mapY = -431;
 var mapScale = 1;
 var prevMapScale = 1;
-var screenWidth = window.innerWidth;
-var screenHeight = window.innerHeight;
 var windowWidth = 0;
 var windowHeight = 0;
+var runningFromBrowser = true;
 
 function OnLoad()
 {
+    if (typeof ue !== 'undefined') //Determine if we're running from browser
+    {
+        runningFromBrowser = false;
+    }
+
     var mapdiv = document.getElementById('mapdiv');
     mapdiv.style.top = mapX + 'px';
     mapdiv.style.left = mapY + 'px';
@@ -36,16 +40,17 @@ function OnLoad()
     CallEvent('OnMapUILoaded', null);
     RefreshMap();
 
-    //The commented code is for when i'm testing with a web browser outside of the game.
-    // AssignParameters(screenWidth, screenHeight);
-    //RegisterLegendIcon('market', 'Market', 'market.png');
-    //RegisterBlip('market', 129000, 78521);
+    if (runningFromBrowser) //Setup stuff that game would normally set up for testing in browser
+    {
+        AssignParameters(window.innerWidth, window.innerHeight);
+        RegisterLegendIcon('market', 'Market', 'market.png');
+        RegisterBlip('market', 129000, 78521);
 
-    // RegisterLegendIcon('gunstore', 'Gun Store', 'gunstore.png');
-    // RegisterBlip('gunstore', 101527, -34633);
-    // RegisterBlip('gunstore', 135200, 192240);
-
-
+        RegisterLegendIcon('gunstore', 'Gun Store', 'gunstore.png');
+        RegisterBlip('gunstore', 101527, -34633);
+        RegisterBlip('gunstore', 135200, 192240);
+    }
+    
 }
 
 function RegisterLegendIcon(id, text, iconpath)
@@ -56,7 +61,7 @@ function RegisterLegendIcon(id, text, iconpath)
     key.iconpath = iconpath;
     key.blips = [];
     legendKeys.push(key);
-    var legendKeyDiv = document.getElementById('legendkey');
+    var legendKeyDiv = document.getElementById('legend-key');
 
     var keyDiv = document.createElement('div');
     keyDiv.style.display = 'block';
@@ -71,10 +76,7 @@ function RegisterLegendIcon(id, text, iconpath)
 
     var img = document.createElement('img');
     img.src = iconpath;
-    img.width = 24;
-    img.height = 24;
-    img.style.position = 'relative';
-    img.style.top = '5px';
+    img.className = 'legend-img';
 
     var label = document.createElement('label')
     label.htmlFor = checkbox.id;
@@ -86,7 +88,6 @@ function RegisterLegendIcon(id, text, iconpath)
     keyDiv.appendChild(label);
 
     legendKeyDiv.appendChild(keyDiv);
-
 }
 
 function RegisterBlip(id, worldX, worldY)
@@ -103,9 +104,7 @@ function RegisterBlip(id, worldX, worldY)
     {
         var blipimg = document.createElement('img');
         blipimg.src = key.iconpath;
-        blipimg.width = 24;
-        blipimg.height = 24;
-        blipimg.style.position = 'absolute';
+        blipimg.className = "blip";
         blipimg.worldX = worldX;
         blipimg.worldY = worldY;
         blipimg.style.zIndex = 3;
@@ -149,12 +148,6 @@ function AssignParameters(_windowWidth, _windowHeight) //After the WebUI is load
 {
     windowWidth = Math.floor(_windowWidth);
     windowHeight = Math.floor(_windowHeight);
-    var legend = document.getElementById('legend');
-    
-    legend.style.left = (windowWidth - legend.offsetWidth  - 200) + 'px';
-    //legend.style.left = (legend.offsetWidth) + 'px';
-
-    legend.style.top = '40px';
 }
 
 function MouseUp()
@@ -201,7 +194,6 @@ function FixMapLocation() //This function is called to ensure that the map does 
     {
         mapY = windowHeight*0.2-mapimg.height;
     }
-
 }
 
 function MapMove(e)
@@ -315,4 +307,3 @@ function CloseMap(e)
         CallEvent('CloseMap', null);
     }
 }
-
