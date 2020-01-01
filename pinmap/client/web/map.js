@@ -22,6 +22,11 @@ var windowWidth = 0;
 var windowHeight = 0;
 var runningFromBrowser = true;
 
+function CustomContextMenu(e) //Custom right click to allow assigning destinations
+{
+    e.preventDefault();
+}
+
 function OnLoad()
 {
     if (typeof ue !== 'undefined') //Determine if we're running from browser
@@ -51,6 +56,8 @@ function OnLoad()
         RegisterBlip('gunstore', 135200, 192240);
     }
     
+    document.addEventListener('contextmenu', CustomContextMenu);
+
 }
 
 function RegisterLegendIcon(id, text, iconpath)
@@ -77,6 +84,7 @@ function RegisterLegendIcon(id, text, iconpath)
     var img = document.createElement('img');
     img.src = iconpath;
     img.className = 'legend-img';
+    img.draggable = false;
 
     var label = document.createElement('label')
     label.htmlFor = checkbox.id;
@@ -105,6 +113,7 @@ function RegisterBlip(id, worldX, worldY)
         var blipimg = document.createElement('img');
         blipimg.src = key.iconpath;
         blipimg.className = "blip";
+        blipimg.draggable = false;
         blipimg.worldX = worldX;
         blipimg.worldY = worldY;
         blipimg.style.zIndex = 3;
