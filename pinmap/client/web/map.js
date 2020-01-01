@@ -57,6 +57,17 @@ function MenuOptionClicked(option)
         destinationMarker.style.display = "none";
         CallEvent("ClearMapDestination", null);
     }
+    if (option == "TeleportHere")
+    {
+        var mapdiv = document.getElementById('mapdiv');
+        var teleportX = parseInt(menu.style.left) - parseInt(mapdiv.style.left);
+        var teleportY = parseInt(menu.style.top) - parseInt(mapdiv.style.top);
+        teleportX = teleportX / mapScale;
+        teleportY = teleportY / mapScale;
+        worldX = MapToWorldX(teleportX);
+        worldY = MapToWorldY(teleportY);
+        CallEvent("RequestTeleportToLocation", worldX, worldY)
+    }
 }
 
 function OnLoad()
@@ -86,10 +97,20 @@ function OnLoad()
         RegisterLegendIcon('gunstore', 'Gun Store', 'gunstore.png');
         RegisterBlip('gunstore', 101527, -34633);
         RegisterBlip('gunstore', 135200, 192240);
+        EnableDevMode();
     }
     
     document.addEventListener('contextmenu', CustomContextMenu);
+}
 
+function EnableDevMode()
+{
+    var menuOptions = document.getElementById("menu-options");
+    var menuItem = document.createElement("li");
+    menuItem.appendChild(document.createTextNode("Teleport Here"));
+    menuItem.className = "menu-option";
+    menuItem.onclick = function() { MenuOptionClicked("TeleportHere") };
+    menuOptions.appendChild(menuItem);
 }
 
 function RegisterLegendIcon(id, text, iconpath)

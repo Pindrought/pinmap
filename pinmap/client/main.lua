@@ -4,6 +4,12 @@ end
 AddEvent("OnScriptError", OnScriptError)
 
 local gui = nil
+local devMode = false
+local uiLoaded = false
+
+local function PinLog(msg)
+	AddPlayerChat('<span color="#33DD33" style="bold" size="12">[Pinmap]</> - ' .. msg)
+end
 
 local function OnPackageStart()
 	local screenX, screenY = GetScreenSize()
@@ -16,6 +22,60 @@ local function OnPackageStart()
 	SetWebVisibility(gui, WEB_HIDDEN)
 end
 AddEvent("OnPackageStart", OnPackageStart)
+
+
+function PinmapEnableDevmode()
+	PinLog("Developer mode is enabled! This will allow players to teleport via the map feature. To turn off developer mode, please see the config.ini file in the Pinmap package!")
+	devMode = true
+	if (uiLoaded) then
+		ExecuteWebJS(gui, "EnableDevMode();")
+	end
+end
+AddRemoteEvent("PinmapEnableDevmode", PinmapEnableDevmode)
+
+local fixTeleportTimer = nil
+local teleportX
+local teleportY
+function FixTeleport()
+	_, _, _, _, teleportZ = LineTrace(teleportX, teleportY, 7000, teleportX, teleportY, 0)
+	PinLog("Attempting to retrieve adjusted teleport coordinates: [" .. teleportX .. ", " .. teleportY .. ", " .. teleportZ .. "]")
+	if (teleportZ ~= 0) then
+		PinLog("Teleporting to fixed coordinates: [" .. teleportX .. ", " .. teleportY .. ", " .. teleportZ .. "]")
+		teleportZ = teleportZ + 50
+		SetIgnoreMoveInput(false)
+		DestroyTimer(fixTeleportTimer)
+		fixTeleportTimer = nil
+		CallRemoteEvent("PinmapRequestTeleport", teleportX, teleportY, teleportZ)
+	end
+end
+
+function RequestTeleportToLocation(worldX, worldY)
+	_, _, _, _, worldZ = LineTrace(worldX, worldY, 10000, worldX, worldY, 0)
+	worldX = math.ceil(worldX)
+	worldY = math.ceil(worldY)
+	worldZ = math.ceil(worldZ) + 50
+	PinLog("Requesting teleport to: [" .. worldX .. ", " .. worldY .. ", " .. worldZ .. "]")
+	if (worldZ == 50) then
+		SetIgnoreMoveInput(true)
+		teleportX = worldX
+		teleportY = worldY
+		if (fixTeleportTimer == nil) then
+			teleportX = worldX
+			teleportY = worldY
+			fixTeleportTimer = CreateTimer(FixTeleport, 100)
+		end
+	else
+		if (fixTeleportTimer ~= nil) then
+			DestroyTimer(fixTeleportTimer)
+			fixTeleportTimer = nil
+		end
+		SetIgnoreMoveInput(false)
+	end
+	CallRemoteEvent("PinmapRequestTeleport", worldX, worldY, worldZ)
+end
+AddEvent("RequestTeleportToLocation", RequestTeleportToLocation)
+
+
 
 local isMapOpen = false
 local timeMapClosed = GetTimeSeconds() --This is to prevent the map from automatically opening again
@@ -45,20 +105,23 @@ function InitializeMapValues() --This will send the width/height of the map whic
 	jsString = "AssignParameters(" .. mapWidth .. "," .. mapHeight ..");"
 	ExecuteWebJS(gui, jsString)
 
-
 	ExecuteWebJS(gui, "RegisterLegendIcon('market', 'Market', 'market.png');")
 	ExecuteWebJS(gui, "RegisterBlip('market', 129000, 78521);")
 
 	ExecuteWebJS(gui, "RegisterLegendIcon('gunstore', 'Gun Store', 'gunstore.png');")
 	ExecuteWebJS(gui, "RegisterBlip('gunstore', 101527, -34633);")
 	ExecuteWebJS(gui, "RegisterBlip('gunstore', 135200, 192240);")
+	uiLoaded = true
+	if (devMode) then
+		ExecuteWebJS(gui, "EnableDevMode();")
+	end
 
 end
 AddEvent("OnMapUILoaded", InitializeMapValues)
 
 local destinationWP = nil
 function UpdateMapDestination(worldX, worldY)
-	_, _, _, _, worldZ = LineTrace(worldX, worldY, 3000, worldX, worldY, -3000)
+	_, _, _, _, worldZ = LineTrace(worldX, worldY, 10000, worldX, worldY, 0)
 	if (destinationWP ~= nil) then
 		DestroyWaypoint(destinationWP)
 	end
