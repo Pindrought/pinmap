@@ -1,6 +1,8 @@
 //Author: Pindrought
 window.onload = OnLoad;
 
+var legendKeys = []; //Legend keys
+
 var mapWidth = 2000;
 var mapHeight = 1943;
 
@@ -16,29 +18,143 @@ var mapX = -40;
 var mapY = -431;
 var mapScale = 1;
 var prevMapScale = 1;
+var screenWidth = window.innerWidth;
+var screenHeight = window.innerHeight;
 var windowWidth = 0;
 var windowHeight = 0;
 
 function OnLoad()
 {
     var mapdiv = document.getElementById('mapdiv');
-    mapdiv.style.top = mapX + "px";
-    mapdiv.style.left = mapY + "px";
+    mapdiv.style.top = mapX + 'px';
+    mapdiv.style.left = mapY + 'px';
     window.addEventListener('mousedown', MouseDown); //mousedown to start drag
     window.addEventListener('mouseup', MouseUp); //mouseup to stop drag
-    window.addEventListener("keydown", CloseMap); //keydown to close map with callback when 'M' is pressed
-    window.addEventListener("wheel", MouseScroll); //mouse wheel event for scrolling
-    window.addEventListener("mousemove", UpdateMousePos, true); //Update mouse pos to be able to retrieve mouse pos when scrolling in&out
-    CallEvent("OnMapUILoaded", null);
+    window.addEventListener('keydown', CloseMap); //keydown to close map with callback when 'M' is pressed
+    window.addEventListener('wheel', MouseScroll); //mouse wheel event for scrolling
+    window.addEventListener('mousemove', UpdateMousePos, true); //Update mouse pos to be able to retrieve mouse pos when scrolling in&out
+    CallEvent('OnMapUILoaded', null);
     RefreshMap();
+
+    //The commented code is for when i'm testing with a web browser outside of the game.
+    // AssignParameters(screenWidth, screenHeight);
+    //RegisterLegendIcon('market', 'Market', 'market.png');
+    //RegisterBlip('market', 129000, 78521);
+
+    // RegisterLegendIcon('gunstore', 'Gun Store', 'gunstore.png');
+    // RegisterBlip('gunstore', 101527, -34633);
+    // RegisterBlip('gunstore', 135200, 192240);
+
+
 }
 
+function RegisterLegendIcon(id, text, iconpath)
+{
+    var key = [];
+    key.id = id;
+    key.text = text;
+    key.iconpath = iconpath;
+    key.blips = [];
+    legendKeys.push(key);
+    var legendKeyDiv = document.getElementById('legendkey');
 
+    var keyDiv = document.createElement('div');
+    keyDiv.style.display = 'block';
+    keyDiv.style.whiteSpace = 'nowrap';
 
-function AssignParameters(_windowWidth, _windowHeight) //After the WebUI is loaded, a callback event is called "OnMapUILoaded" where the map.lua will call AssignParameters and pass in the window Width/Height
+    var checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = 'checkbox_' + id;
+    checkbox.checked = true;
+    checkbox.onclick = function() { LegendKeyClick(id) }; 
+    checkbox.className = 'checkbox-custom';
+
+    var img = document.createElement('img');
+    img.src = iconpath;
+    img.width = 24;
+    img.height = 24;
+    img.style.position = 'relative';
+    img.style.top = '5px';
+
+    var label = document.createElement('label')
+    label.htmlFor = checkbox.id;
+    label.style.fontSize = '24px';
+    label.textContent = text;
+
+    keyDiv.appendChild(checkbox);
+    keyDiv.appendChild(img);
+    keyDiv.appendChild(label);
+
+    legendKeyDiv.appendChild(keyDiv);
+
+}
+
+function RegisterBlip(id, worldX, worldY)
+{
+    var key = null;
+    legendKeys.forEach(e =>
+        {
+            if (e.id == id)
+            {
+                key = e;
+            }
+        });
+    if (key != null)
+    {
+        var blipimg = document.createElement('img');
+        blipimg.src = key.iconpath;
+        blipimg.width = 24;
+        blipimg.height = 24;
+        blipimg.style.position = 'absolute';
+        blipimg.worldX = worldX;
+        blipimg.worldY = worldY;
+        blipimg.style.zIndex = 3;
+        blipimg.style.left = (WorldToMapX(blipimg.worldX) * mapScale -12) + 'px';
+        blipimg.style.top = (WorldToMapY(blipimg.worldY) * mapScale -12) + 'px';
+        key.blips.push(blipimg);
+
+        var mapdiv = document.getElementById('mapdiv');
+        mapdiv.appendChild(blipimg);
+    }
+}
+
+function LegendKeyClick(id)
+{
+    var cb = document.getElementById('checkbox_'+id);
+    var key = null;
+    legendKeys.forEach(e =>
+        {
+            if (e.id == id)
+            {
+                key = e;
+            }
+        });
+    if (cb.checked == true)
+    {
+        key.blips.forEach(element => 
+        {
+            element.style.visibility = 'visible';
+        });
+    }
+    else
+    {
+        key.blips.forEach(element => 
+        {
+            element.style.visibility = 'hidden';
+        });
+    }
+}
+
+function AssignParameters(_windowWidth, _windowHeight) //After the WebUI is loaded, a callback event is called 'OnMapUILoaded' where the map.lua will call AssignParameters and pass in the window Width/Height
 {
     windowWidth = Math.floor(_windowWidth);
     windowHeight = Math.floor(_windowHeight);
+    var legend = document.getElementById('legend');
+    
+    legend.style.left = (windowWidth - legend.offsetWidth  - 200) + 'px';
+    //legend.style.left = (legend.offsetWidth) + 'px';
+
+    legend.style.top = '40px';
 }
 
 function MouseUp()
@@ -146,25 +262,48 @@ function RefreshMap() //This is intended to be called after scaling the map to r
     FixMapLocation();
     mapdiv.style.left = (mapX) + 'px';
     mapdiv.style.top = (mapY) + 'px';
+    RefreshBlips();
+}
+
+function WorldToMapX(worldX)
+{
+    return (worldX + 234002.2054794521) / 241.041095890411;
+}
+
+function WorldToMapY(worldY)
+{
+    return (worldY + 231101.3928571428) / 242.5535714285714;
 }
 
 function RefreshPlayerMarker() //Called when map is resized to reposition player marker.
 {
-    var playerMarker = document.getElementById("playermarker");
+    var playerMarker = document.getElementById('playermarker');
     playerMarker.style.left = (playerMarker.imgX * mapScale -16) + 'px';
     playerMarker.style.top = (playerMarker.imgY * mapScale -16) + 'px';
 }
 
+function RefreshBlips() //Called when map is resized to reposition player marker.
+{
+    legendKeys.forEach(key =>
+    {
+        key.blips.forEach(blip =>
+        {
+            blip.style.left = (WorldToMapX(blip.worldX) * mapScale -12) + 'px';
+            blip.style.top = (WorldToMapY(blip.worldY) * mapScale -12) + 'px';
+        });
+    });
+}
+
 function UpdatePlayerPosition(worldX, worldY, worldZ, angle) //Called from map.lua
 {
-    var imgX = (worldX + 234002.2054794521) / 241.041095890411;
-    var imgY = (worldY + 231101.3928571428) / 242.5535714285714;
-    var playerMarker = document.getElementById("playermarker");
+    var imgX = WorldToMapX(worldX);
+    var imgY = WorldToMapY(worldY);
+    var playerMarker = document.getElementById('playermarker');
     imgX = Math.floor(imgX);
     imgY = Math.floor(imgY);
     playerMarker.imgX = imgX;
     playerMarker.imgY = imgY;
-    playerMarker.style.transform = "rotate("+Math.floor(angle)+"deg)";
+    playerMarker.style.transform = 'rotate('+Math.floor(angle)+'deg)';
     RefreshPlayerMarker();
 }
 
@@ -173,7 +312,7 @@ function CloseMap(e)
     var keyCode = e.keyCode;
     if (keyCode==77) //77 = M
     {
-        CallEvent("CloseMap", null);
+        CallEvent('CloseMap', null);
     }
 }
 

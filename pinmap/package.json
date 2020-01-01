@@ -8,8 +8,11 @@
 	],
 	"files": [
 		"client/web/map.html",
+		"client/web/map.css",
 		"client/web/map.js",
 		"client/web/map.png",
-		"client/web/playermarker.png"
+		"client/web/playermarker.png",
+		"client/web/market.png",
+		"client/web/gunstore.png"
 	]
 }

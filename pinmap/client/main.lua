@@ -11,6 +11,7 @@ local function OnPackageStart()
 	mapHeight = screenY * 0.8
 	gui = CreateWebUI(0, 0, mapWidth, mapHeight)
 	LoadWebFile(gui, "http://asset/pinmap/client/web/map.html")
+	AddPlayerChat("Creating web with dimensions [" .. mapWidth .. ", " .. mapHeight .. "]")
 
 	SetWebAlignment(gui, 0.5, 0.5)
 	SetWebAnchors(gui, 0.5, 0.5, 0.5, 0.5)
@@ -45,8 +46,16 @@ function InitializeMapValues()
 	mapWidth = screenX * 0.8
 	mapHeight = screenY * 0.8
 	jsString = "AssignParameters(" .. mapWidth .. "," .. mapHeight ..");"
-	AddPlayerChat(jsString);
 	ExecuteWebJS(gui, jsString)
+
+
+	ExecuteWebJS(gui, "RegisterLegendIcon('market', 'Market', 'market.png');")
+	ExecuteWebJS(gui, "RegisterBlip('market', 129000, 78521);")
+
+	ExecuteWebJS(gui, "RegisterLegendIcon('gunstore', 'Gun Store', 'gunstore.png');")
+	ExecuteWebJS(gui, "RegisterBlip('gunstore', 101527, -34633);")
+	ExecuteWebJS(gui, "RegisterBlip('gunstore', 135200, 192240);")
+
 end
 AddEvent("OnMapUILoaded", InitializeMapValues)
 
