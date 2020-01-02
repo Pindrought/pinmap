@@ -105,10 +105,10 @@ function InitializeMapValues() --This will send the width/height of the map whic
 	jsString = "AssignParameters(" .. mapWidth .. "," .. mapHeight ..");"
 	ExecuteWebJS(gui, jsString)
 
-	ExecuteWebJS(gui, "RegisterLegendIcon('market', 'Market', 'market.png');")
+	ExecuteWebJS(gui, "RegisterLegendKey('market', 'Market', 'market.png');")
 	ExecuteWebJS(gui, "RegisterBlip('market', 129000, 78521);")
 
-	ExecuteWebJS(gui, "RegisterLegendIcon('gunstore', 'Gun Store', 'gunstore.png');")
+	ExecuteWebJS(gui, "RegisterLegendKey('gunstore', 'Gun Store', 'gunstore.png');")
 	ExecuteWebJS(gui, "RegisterBlip('gunstore', 101527, -34633);")
 	ExecuteWebJS(gui, "RegisterBlip('gunstore', 135200, 192240);")
 	uiLoaded = true
