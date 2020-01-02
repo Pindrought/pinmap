@@ -61,7 +61,7 @@ local function OnPackageStart()
                 blip.y = coords[2]
                 newKey.blips[j] = blip
             end
-            legendKeys[keyName] = newKey
+            legendKeys[#legendKeys + 1] = newKey
         end
     else
         return PinLog("Critical Error! - Could not parse [mapLegend] - \"keyCount\" field! Config.ini not properly configured! Expected an integer!")
@@ -79,10 +79,10 @@ AddEvent("OnPlayerJoin", OnPlayerJoin)
 
 local function PinmapRequestLegend(player)
     local kc = 0
-    for k,v in pairs(legendKeys) do
-        CallRemoteEvent(player, "PinmapRegisterLegendKey", v.id,  v.displayText, v.iconPath)
-        for i, blip in ipairs(v.blips) do
-            CallRemoteEvent(player, "PinmapRegisterBlip", v.id, blip.x, blip.y)
+    for i = 1, #legendKeys do
+        CallRemoteEvent(player, "PinmapRegisterLegendKey", legendKeys[i].id,  legendKeys[i].displayText, legendKeys[i].iconPath)
+        for i, blip in ipairs(legendKeys[i].blips) do
+            CallRemoteEvent(player, "PinmapRegisterBlip", legendKeys[i].id, blip.x, blip.y)
         end
     end
 end
