@@ -6,10 +6,10 @@ local function PinLog(msg) --Just a custom log function that I use instead of pr
 end
 
 local function OnPackageStart() 
-    if not file_exists("packages/pinmap/config.ini") then
+    if not file_exists("packages/" .. GetPackageName() .. "/config.ini") then
         return PinLog("Failed to load the config.ini file! Critical Error!")
     end
-    local ini = ini_open("packages/pinmap/config.ini")
+    local ini = ini_open("packages/" .. GetPackageName() .. "/config.ini")
 
     --Check for dev mode
     local devModeValue = ini_read(ini, "developer", "developerModeEnabled")
