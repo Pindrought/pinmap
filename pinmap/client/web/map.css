@@ -1,10 +1,27 @@
-label
-{
-    font-family: "Verdana";
+/* Font imports: */
+@font-face {
+    font-family: "Roboto";
+    font-weight: 300;
+    src: url("fonts/Roboto-Light.ttf") format("ttf");
 }
 
-img, label, div /*disable highlighting/selecting for img, label, and divs*/
-{
+@font-face {
+    font-family: "Roboto";
+    font-weight: 400;
+    src: url("fonts/Roboto-Regular.ttf") format("ttf");
+}
+
+
+* {
+    box-sizing: border-box;
+}
+
+img,
+label,
+div
+
+/*disable highlighting/selecting for img, label, and divs*/
+    {
     -khtml-user-select: none;
     -o-user-select: none;
     -moz-user-select: none;
@@ -12,54 +29,96 @@ img, label, div /*disable highlighting/selecting for img, label, and divs*/
     user-select: none;
 }
 
-body
-{
-    background-color:rgb(45, 106, 175); /*Ocean color*/
-    overflow: hidden; /*No scrollbar*/
+body {
+    background-color: rgb(45, 106, 175);
+    /*Ocean color*/
+    overflow: hidden;
+    /*No scrollbar*/
 }
 
-label /*make all text white & bold*/
-{
+label
+
+/*make all text white & bold*/
+    {
     color: #FFF;
     font-weight: bold;
 }
 
-#legend
-{
-    width:300px;
-    padding-bottom:20px; 
-    background-color: rgba(0, 0, 0, 0.5); 
-    border-radius: 20px; 
-    text-align:center; 
-    align-content: center; 
-    z-index:6; 
-    position:absolute; 
-    right:0; 
-    top:20px;
-    margin-right:20px;
+#legend-background {
+    position: absolute;
+    z-index: 5;
+    width: 300px;
+    right: 20px;
+    top: 20px;
+    backdrop-filter: blur(40px);
+    height: 200px;
+    background: rgba(0, 0, 0, 0.164);
 }
 
-#legend-header
-{
-    top:10px; 
-    font-size: 28px; 
-    display:block; 
-    border-top-right-radius: 20px; 
-    border-top-left-radius: 20px; 
-    background-color: rgba(0,0,0,0.5);
+#legend {
+    width: 300px;
+    padding-bottom: 20px;
+    border-radius: 3px;
+    text-align: center;
+    align-content: center;
+    z-index: 6;
+    position: absolute;
+    right: 20px;
+    top: 20px;
 }
 
-#legend-key
-{
-    font-weight: normal;
+#legend-header {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    height: 32px;
+    top: 10px;
+    line-height: 32px;
+    font-size: 20px;
+    display: block;
+    border-top-right-radius: 3px;
+    border-top-left-radius: 3px;
+    background-color: #0984e3;
+}
+
+#legend-key {
+    font-weight: 300;
     margin-top: 7px;
-    align-content: center; 
-    text-align: left; 
-    display:inline-block;
+    align-content: center;
+    padding: 5px;
+    text-align: left;
+    display: block;
+    width: 100%;
 }
 
-.legend-img
-{
+#legend-key>div.legend-key-child {
+    display: block;
+    white-space: nowrap;
+}
+
+#legend-key>div.legend-key-child>img.legend-check {
+    float: right;
+    line-height: 28px;
+    height: 28px;
+}
+
+#legend-key>div.legend-key-child>.name {
+    float: left;
+}
+
+#legend-key>div.legend-key-child>.name>img {
+    line-height: 28px;
+    height: 28px;
+}
+
+#legend-key>div.legend-key-child>.name>label {
+    line-height: 28px;
+    height: 28px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+}
+
+
+.legend-img {
     width: 24px;
     height: 24px;
     position: relative;
@@ -68,123 +127,72 @@ label /*make all text white & bold*/
     margin-right: 5px;
 }
 
-#mapimg
-{
-    z-index:1; 
-    position:relative; 
+#mapimg {
+    z-index: 1;
+    position: relative;
     vertical-align: top;
 }
 
-#playermarker
-{
-    z-index:5; 
-    position:absolute;
+#mapdiv {
+    transition-property: left top;
+    transition-duration: 0.5s;
+    transition-timing-function: ease-in;
+}
+
+#playermarker {
+    z-index: 5;
+    position: absolute;
     width: 32px;
     height: 32px;
-    top:0px; 
-    left:0px;
+    top: 0px;
+    left: 0px;
 }
 
-#destinationmarker
-{
-    z-index:3; 
-    position:absolute; 
-    top:0px; 
-    left:0px;
+#destinationmarker {
+    z-index: 3;
+    position: absolute;
+    top: 0px;
+    left: 0px;
 }
 
-.blip /*blip on map*/
-{
+.blip
+
+/*blip on map*/
+    {
     width: 24px;
     height: 24px;
     position: absolute;
 }
 
-/*the checkbox code is pretty copy&paste barely modified - i'll go through and remove unnecessary attributes later*/
-.checkbox-custom 
-{
-    padding-right: 20px;
-    display: block;
-    position: relative;
-    width: 16px;
-    height: 16px;
-    margin: 0;
-    display: inline-block;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -o-user-select: none;
-    user-select: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    outline: 0;
-}
+ul,
+li
 
-.checkbox-custom:after 
-{
-    content: '';
-    position: absolute;
-    z-index: 1;
-    width: 16px;
-    height: 16px;
-    border: 2px solid #FFFFFF;
-    border-radius: 2px;
-}
-
-.checkbox-custom[type=checkbox]:before 
-{
-    background: #6c7bde;
-    background-size: 10px 8px;
-    background-repeat: no-repeat;
-    background-position: 3px 4px;
-    position: absolute;
-    left: 2px;
-    z-index: 2;
-    opacity: 0;
-    width: 16px;
-    height: 16px;
-}
-
-.checkbox-custom[type=checkbox]:checked:before 
-{
-    content: '';
-    position: absolute;
-    top: 0px;
-    opacity: 1;
-    left: 0px;
-    border: 2px solid #FFFFFF;
-    border-radius: 2px;
-}
-
-ul,li /*Remove indentation from menu options*/
-{ 
+/*Remove indentation from menu options*/
+    {
     list-style-type: none;
-    list-style-position:inside;
-    margin:0;
-    padding:0; 
+    list-style-position: inside;
+    margin: 0;
+    padding: 0;
 }
 
-.menu 
-{
+.menu {
     padding-top: 5px;
     padding-bottom: 5px;
     border-radius: 5px;
     border: 5px rgba(0, 0, 0, 0.6);
-    background-color: rgba(0, 0, 0, 0.6);;
+    background-color: rgba(0, 0, 0, 0.6);
+    ;
     position: absolute;
-    left:0px;
-    top:0px;
-    z-index:10;
+    left: 0px;
+    top: 0px;
+    z-index: 10;
 }
 
-.menu-options 
-{
+.menu-options {
     list-style: none;
 }
 
-.menu-option 
-{
+.menu-option {
     padding-left: 5px;
     padding-right: 5px;
     font-weight: bold;
@@ -193,7 +201,6 @@ ul,li /*Remove indentation from menu options*/
     cursor: pointer;
 }
 
-.menu-option:hover 
-{
+.menu-option:hover {
     background: rgba(200, 200, 200, 0.4);
-} 
+}
