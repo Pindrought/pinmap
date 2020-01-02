@@ -411,14 +411,14 @@ class MapHelper //Map Helper class for all of the map math calculations
         return 242.5535714285714 * mapDivY - 231101.3928571428;
     }
 
-    static UIPixelToWorldX(uiPixel) //Takes a coordinate in UI space (ex. topleft is 0,0) and converts it to the world space coordinate in game.
+    static UIPixelToWorldX(uiPixel) 
     {
         var mapDivX = this.UIPixelToMapImgX(uiPixel)
         var worldX = this.MapImgToWorldX(mapDivX)
         return worldX
     }
 
-    static UIPixelToWorldY(uiPixel) //Takes a coordinate in UI space (ex. topleft is 0,0) and converts it to the world space coordinate in game.
+    static UIPixelToWorldY(uiPixel) 
     {
         var mapDivY = this.UIPixelToMapImgY(uiPixel)
         var worldY = this.MapImgToWorldY(mapDivY)
