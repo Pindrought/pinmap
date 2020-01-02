@@ -22,11 +22,19 @@ var windowWidth = 0;
 var windowHeight = 0;
 //runningFromBrowser will be determined OnLoad and special logic can be called for debugging via browser
 var runningFromBrowser = true;
+var mapOrientation = 0; //Default is 0, but if you want to change it to rotate the map, here is where you would do that. Expected input is in degrees. ex. 90
 
-function OnLoad() {
+function OnLoad()
+{
     if (typeof ue !== 'undefined') //Determine if we're running from browser. If this is not undefined, we are running from game.
     {
         runningFromBrowser = false;
+    }
+
+    if (mapOrientation != 0)
+    {
+        var mapimg = document.getElementById('mapimg')
+        mapimg.style.transform = "rotate(" + mapOrientation+"deg)";
     }
 
     window.addEventListener('mousedown', MouseDown, false); //mousedown to start drag and close context menu if not clicking on it
@@ -41,7 +49,7 @@ function OnLoad() {
     if (runningFromBrowser) //Setup stuff that game would normally set up for testing in browser
     {
         AssignParameters(window.innerWidth, window.innerHeight);
-        RegisterLegendKey('market', 'Market', 'icons/shopping-cart.png');
+        RegisterLegendKey('market', 'MarketAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 'icons/shopping-cart.png');
         RegisterBlip('market', 129000, 78521);
 
         RegisterLegendKey('gunstore', 'Gun Store', 'icons/shield.png');
@@ -49,11 +57,12 @@ function OnLoad() {
         RegisterBlip('gunstore', 135200, 192240);
         EnableDevMode();
     }
-
+    
     CallEvent('OnMapUILoaded', null); //Call event to main.lua so that it knows that the web ui is loaded. The main.lua needs to know before attempting to send data like legend data, because it is invalid behavior to ExecuteJS before the web ui is loaded.
 }
 
-function MouseDown(e) {
+function MouseDown(e)
+{
     if (e.button == 2) //If right click, exit since right click is just used for context menu
     {
         return;
@@ -99,40 +108,45 @@ function MapDrag(e) //This event is a mousemove event only active when the mouse
     mapdiv.style.position = 'absolute';
     dx = e.clientX - mouseStartDragX;
     dy = e.clientY - mouseStartDragY;
-    mapDivX = mapDivStartDragX + dx;
-    mapDivY = mapDivStartDragY + dy;
+    mapDivX = mapDivStartDragX+dx;
+    mapDivY = mapDivStartDragY+dy;
     FixMapLocation(); //Fix map location to make sure user does not drag map off screen
     mapdiv.style.left = (mapDivX) + 'px';
     mapdiv.style.top = (mapDivY) + 'px';
 }
 
-function KeyDown(e) {
+function KeyDown(e) 
+{
     var keyCode = e.keyCode; //Get code of key pressed
-    if (keyCode == 77) //77 = M - If the user presses M, we can Call an event to main.lua to close the map since the input will not be received by main.lua while ui is focused.
+    if (keyCode==77) //77 = M - If the user presses M, we can Call an event to main.lua to close the map since the input will not be received by main.lua while ui is focused.
     {
         CallEvent('CloseMap', null);
     }
 }
 
-function MouseScroll(e) {
+function MouseScroll(e)
+{
     const delta = Math.sign(e.deltaY); //Get the sign of deltaY to determine if we are zooming in or out
     var prevMapScale = mapScale; //Store previous map scale so this can be passed to RefreshMap() - This is used to calculate the new factor for adjusting the map after zoom
     if (delta == -1) //zooming in
     {
-        if (mapScale < 3.0) {
+        if (mapScale < 3.0)
+        {
             mapScale = mapScale / 0.8;
         }
     }
     else //zooming out
     {
-        if (mapScale > 0.3) {
+        if (mapScale > 0.3)
+        {
             mapScale = mapScale * 0.8;
         }
     }
     RefreshMap(prevMapScale); //Refresh the map to resize/zoom/recalculate blip & marker positions on mapdiv
 }
 
-function UpdateMousePos(e) {
+function UpdateMousePos(e)
+{
     mousePosX = e.clientX;
     mousePosY = e.clientY;
 }
@@ -152,25 +166,38 @@ function MenuOptionClicked(option) //This is called when one of the right click 
     menu.style.display = "none"; //Hide menu when option is clicked
     var menuX = parseInt(menu.style.left) //Original right click X position from when menu was created
     var menuY = parseInt(menu.style.top) //Original right click X position from when menu was created
+    var pixelCoords = { };
+    pixelCoords[0] = menuX;
+    pixelCoords[1] = menuY;
+    //pixelCoords = MapHelper.AdjustCoordinatesForReversedMapOrientation(pixelCoords);
+    menuX = pixelCoords[0];
+    menuY = pixelCoords[1];
 
     var destinationMarker = document.getElementById("destinationmarker");
 
-    if (option == "SetDestination") {
-        destinationMarker.worldX = MapHelper.UIPixelToWorldX(menuX) //Store world X for destination marker - this is used when recalculating mapdiv position due to scrolling in/out
-        destinationMarker.worldY = MapHelper.UIPixelToWorldY(menuY) //Store world Y for destination marker - this is used when recalculating mapdiv position due to scrolling in/out
-        destinationMarker.style.left = (MapHelper.UIPixelToMapDivX(menuX) - 16) + 'px'; //Center destination marker icon on the x position
-        destinationMarker.style.top = (MapHelper.UIPixelToMapDivY(menuY) - 32) + 'px'; //Adjust the y so that the destination marker icon bottom is pointing to the position
+    if (option == "SetDestination")
+    {
+        var worldCoords = MapHelper.UIPixelToWorld(pixelCoords);
+        destinationMarker.worldX = worldCoords[0]; //Store world X for destination marker - this is used when recalculating mapdiv position due to scrolling in/out
+        destinationMarker.worldY = worldCoords[1]; //Store world Y for destination marker - this is used when recalculating mapdiv position due to scrolling in/out
+        var coords = { };
+        coords[0] = MapHelper.WorldToMapImgX(destinationMarker.worldX);
+        coords[1] = MapHelper.WorldToMapImgY(destinationMarker.worldY);
+        coords = MapHelper.AdjustCoordinatesForMapOrientation(coords);
+        destinationMarker.style.left = (coords[0] * mapScale -16) + 'px';
+        destinationMarker.style.top = (coords[1] * mapScale - 32) + 'px';
         destinationMarker.style.display = "block"; //Show destination marker
         CallEvent("UpdateMapDestination", destinationMarker.worldX, destinationMarker.worldY) //Send destination marker x,y coords to main.lua
     }
-    if (option == "ClearDestination") {
+    if (option == "ClearDestination")
+    {
         destinationMarker.style.display = "none"; //Hide destination marker
         CallEvent("ClearMapDestination", null); //Call event to main.lua so that the in game destination waypoint is destroyed.
     }
-    if (option == "TeleportHere") {
-        teleportX = MapHelper.UIPixelToWorldX(menuX)
-        teleportY = MapHelper.UIPixelToWorldY(menuY)
-        CallEvent("RequestTeleportToLocation", teleportX, teleportY) //Call event to main.lua with x,y coordinates so that client can call remote event to server with coordinates
+    if (option == "TeleportHere")
+    {
+        var worldCoords = MapHelper.UIPixelToWorld(pixelCoords);
+        CallEvent("RequestTeleportToLocation", worldCoords[0], worldCoords[1]) //Call event to main.lua with x,y coordinates so that client can call remote event to server with coordinates
     }
 }
 
@@ -187,7 +214,7 @@ function EnableDevMode() //If mod is ran in dev mode, there is a teleport option
     var menuItem = document.createElement("li");
     menuItem.appendChild(document.createTextNode("Teleport Here"));
     menuItem.className = "menu-option";
-    menuItem.onclick = function () { MenuOptionClicked("TeleportHere") };
+    menuItem.onclick = function() { MenuOptionClicked("TeleportHere") };
     menuOptions.appendChild(menuItem);
 }
 
@@ -202,11 +229,11 @@ function RefreshMap(prevMapScale) //This is intended to be called after scaling 
     map.width = mapWidth * mapScale; //Adjust Width for new Map Scale
     map.height = mapHeight * mapScale; //Adjust Height for new Map Scale
 
-    factor = mapScale / prevMapScale;
-    var dx = (mousePosX - mapDivX) * (factor - 1);
-    var dy = (mousePosY - mapDivY) * (factor - 1);
+    factor = mapScale/prevMapScale;
+    var dx = (mousePosX - mapDivX) * (factor-1);
+    var dy = (mousePosY - mapDivY) * (factor-1);
     mapDivX = mapDivX - dx;
-    mapDivY = mapDivY - dy;
+    mapDivY = mapDivY- dy;
 
     FixMapLocation(); //Adjusts map location if it is going off screen
     mapdiv.style.left = (mapDivX) + 'px';
@@ -218,46 +245,66 @@ function RefreshMap(prevMapScale) //This is intended to be called after scaling 
 function FixMapLocation() //This function is called to ensure that the map does not go off the screen.
 {
     var mapimg = document.getElementById('mapimg');
-
-    if (mapDivX > windowWidth * 0.8) {
-        mapDivX = windowWidth * 0.8;
+    
+    if (mapDivX > windowWidth*0.8)
+    {
+        mapDivX = windowWidth*0.8;
     }
 
-    if ((mapDivX + mapimg.width) < windowWidth * 0.2) {
-        mapDivX = windowWidth * 0.2 - mapimg.width;
+    if ((mapDivX+mapimg.width) < windowWidth * 0.2)
+    {
+        mapDivX = windowWidth*0.2-mapimg.width;
     }
 
-    if (mapDivY > windowHeight * 0.8) {
-        mapDivY = windowHeight * 0.8;
+    if (mapDivY > windowHeight*0.8)
+    {
+        mapDivY = windowHeight*0.8;
     }
 
-    if ((mapDivY + mapimg.height) < windowHeight * 0.2) {
-        mapDivY = windowHeight * 0.2 - mapimg.height;
+    if ((mapDivY+mapimg.height) < windowHeight * 0.2)
+    {
+        mapDivY = windowHeight*0.2-mapimg.height;
     }
 }
 
 function RefreshBlips() //Called when map is resized to reposition player marker.
 {
-    legendKeys.forEach(key => {
-        key.blips.forEach(blip => {
-            blip.style.left = (MapHelper.WorldToMapImgX(blip.worldX) * mapScale - 12) + 'px';
-            blip.style.top = (MapHelper.WorldToMapImgY(blip.worldY) * mapScale - 12) + 'px';
+    legendKeys.forEach(key =>
+    {
+        key.blips.forEach(blip =>
+        {
+            var coords = { };
+            coords[0] = MapHelper.WorldToMapImgX(blip.worldX);
+            coords[1] = MapHelper.WorldToMapImgY(blip.worldY);
+            coords = MapHelper.AdjustCoordinatesForMapOrientation(coords);
+
+            blip.style.left = (coords[0] * mapScale -12) + 'px';
+            blip.style.top = (coords[1] * mapScale -12) + 'px';
         });
     });
     //Refresh destination (if one exists)
     var destinationMarker = document.getElementById("destinationmarker");
     if (destinationMarker.style.display == 'block') //If destination marker is visible, update position
     {
-        destinationMarker.style.left = (MapHelper.WorldToMapImgX(destinationMarker.worldX) * mapScale - 16) + 'px';
-        destinationMarker.style.top = (MapHelper.WorldToMapImgY(destinationMarker.worldY) * mapScale - 32) + 'px';
+        var coords = { };
+        coords[0] = MapHelper.WorldToMapImgX(destinationMarker.worldX);
+        coords[1] = MapHelper.WorldToMapImgY(destinationMarker.worldY);
+        coords = MapHelper.AdjustCoordinatesForMapOrientation(coords);
+        destinationMarker.style.left = (coords[0] * mapScale -16) + 'px';
+        destinationMarker.style.top = (coords[1] * mapScale - 32) + 'px';
     }
 }
 
 function RefreshPlayerMarker() //Called when map is resized to reposition player marker.
 {
     var playerMarker = document.getElementById('playermarker');
-    playerMarker.style.left = (playerMarker.imgX * mapScale - 16) + 'px';
-    playerMarker.style.top = (playerMarker.imgY * mapScale - 16) + 'px';
+    
+    var coords = { };
+    coords[0] = MapHelper.WorldToMapImgX(playerMarker.worldX);
+    coords[1] = MapHelper.WorldToMapImgY(playerMarker.worldY);
+    coords = MapHelper.AdjustCoordinatesForMapOrientation(coords);
+    playerMarker.style.left = (coords[0] * mapScale - 16) + 'px';
+    playerMarker.style.top = (coords[1] * mapScale - 16) + 'px';
 }
 
 function RegisterLegendKey(id, text, iconpath) //This should be called by main.lua via ExecuteJS for setting up a new legend key
@@ -300,8 +347,8 @@ function RegisterLegendKey(id, text, iconpath) //This should be called by main.l
 
     keyDiv.appendChild(keyName);
     keyDiv.appendChild(checkbox);
+    keyDiv.append(clearDiv);
 
-    keyDiv.appendChild(clearDiv);
     legendKeyDiv.appendChild(keyDiv);
     document.getElementById('legend-background').style.height = document.getElementById('legend').offsetHeight + "px";
 }
@@ -309,12 +356,15 @@ function RegisterLegendKey(id, text, iconpath) //This should be called by main.l
 function RegisterBlip(id, worldX, worldY) //This should be called by main.lua via ExecuteJS for setting up a new blip AFTER the legend key for this "id" has been assigned.
 {
     var key = null;
-    legendKeys.forEach(e => {
-        if (e.id == id) {
-            key = e;
-        }
-    });
-    if (key != null) {
+    legendKeys.forEach(e =>
+        {
+            if (e.id == id)
+            {
+                key = e;
+            }
+        });
+    if (key != null)
+    {
         var blipimg = document.createElement('img');
         blipimg.src = key.iconpath;
         blipimg.className = "blip";
@@ -322,8 +372,14 @@ function RegisterBlip(id, worldX, worldY) //This should be called by main.lua vi
         blipimg.worldX = worldX;
         blipimg.worldY = worldY;
         blipimg.style.zIndex = 3;
-        blipimg.style.left = (MapHelper.WorldToMapImgX(blipimg.worldX) * mapScale - 12) + 'px';
-        blipimg.style.top = (MapHelper.WorldToMapImgY(blipimg.worldY) * mapScale - 12) + 'px';
+
+        var coords = { };
+        coords[0] = MapHelper.WorldToMapImgX(blipimg.worldX);
+        coords[1] = MapHelper.WorldToMapImgY(blipimg.worldY);
+        coords = MapHelper.AdjustCoordinatesForMapOrientation(coords);
+        blipimg.style.left = (coords[0] * mapScale - 12) + 'px';
+        blipimg.style.top = (coords[1] * mapScale - 12) + 'px';
+
         key.blips.push(blipimg);
 
         var mapdiv = document.getElementById('mapdiv');
@@ -331,10 +387,11 @@ function RegisterBlip(id, worldX, worldY) //This should be called by main.lua vi
     }
 }
 
-function LegendKeyClick(event) //This is called from one of the checkboxes that each legend key has
+function LegendKeyClick(id) //This is called from one of the checkboxes that each legend key has
 {
     var element = event.target;
-    while (!element.dataset.id) {
+    while (!element.dataset.id) 
+    {
         element = element.parentNode;
     }
     var legend_id = element.dataset.id;
@@ -345,78 +402,151 @@ function LegendKeyClick(event) //This is called from one of the checkboxes that 
 
     legendKeys.forEach((e, i) => //forEach loop to get the legend key that the id is tied to
     {
-        if (e.id == legend_id) {
+        if (e.id == legend_id) 
+        {
             legendKeyIndex = i;
         }
     });
 
     element.dataset.checked = !checked;
 
-    legendKeys[legendKeyIndex].blips.forEach(element => {
+    legendKeys[legendKeyIndex].blips.forEach(element => 
+    {
         element.style.visibility = !checked ? 'visible' : 'hidden';
     });
-
+    // var cb = document.getElementById('checkbox_'+id);
+    // var key = null;
+    // legendKeys.forEach(e => //forEach loop to get the legend key that the id is tied to
+    // {
+    //     if (e.id == id)
+    //     {
+    //         key = e;
+    //     }
+    // });
+    // //If checked, show all blips, if unchecked, hide all blips
+    // if (cb.checked == true)
+    // {
+    //     key.blips.forEach(element => 
+    //     {
+    //         element.style.visibility = 'visible';
+    //     });
+    // }
+    // else
+    // {
+    //     key.blips.forEach(element => 
+    //     {
+    //         element.style.visibility = 'hidden';
+    //     });
+    // }
 }
 
 function UpdatePlayerPosition(worldX, worldY, worldZ, angle) //Called from map.lua - updates the player marker location/rotation
 {
     var playerMarker = document.getElementById('playermarker');
-    playerMarker.imgX = MapHelper.WorldToMapImgX(worldX);
-    playerMarker.imgY = MapHelper.WorldToMapImgY(worldY);
-    playerMarker.style.transform = 'rotate(' + Math.floor(angle) + 'deg)';
+    playerMarker.worldX = worldX;
+    playerMarker.worldY = worldY;
+    playerMarker.style.transform = 'rotate('+Math.floor(angle + mapOrientation)+'deg)';
     RefreshPlayerMarker();
 }
 
 class MapHelper //Map Helper class for all of the map math calculations
 {
-    static WorldToMapImgX(worldX) {
+    static AdjustCoordinatesForMapOrientation(coords)
+    {
+        if (mapOrientation != 0)
+        {
+            var x = coords[0];
+            var y = coords[1];
+            var centerX = mapWidth/2;
+            var centerY = mapHeight/2;
+            var dx = x - centerX;
+            var dy = y - centerY;
+            var rotatedX = dx * Math.cos(mapOrientation * Math.PI / 180) - dy*Math.sin(mapOrientation *Math.PI / 180);
+            var rotatedY = dy * Math.cos(mapOrientation * Math.PI / 180) + dx*Math.sin(mapOrientation *Math.PI / 180);
+            var newCoords = {};
+            newCoords[0] = rotatedX + centerX;
+            newCoords[1] = rotatedY + centerY;
+            return newCoords;
+        }
+        else
+        {
+            return coords;
+        }
+    }
+
+    static AdjustCoordinatesForReversedMapOrientation(coords)
+    {
+        if (mapOrientation != 0)
+        {
+            var x = coords[0];
+            var y = coords[1];
+            var centerX = mapWidth/2;
+            var centerY = mapHeight/2;
+            var dx = x - centerX;
+            var dy = y - centerY;
+            var rotatedX = dx * Math.cos(-mapOrientation * Math.PI / 180) - dy*Math.sin(-mapOrientation *Math.PI / 180);
+            var rotatedY = dy * Math.cos(-mapOrientation * Math.PI / 180) + dx*Math.sin(-mapOrientation *Math.PI / 180);
+            var newCoords = {};
+            newCoords[0] = rotatedX + centerX;
+            newCoords[1] = rotatedY + centerY;
+            return newCoords;
+        }
+        else
+        {
+            return coords;
+        }
+    }
+
+    static WorldToMapImgX(worldX)
+    {
         return (worldX + 234002.2054794521) / 241.041095890411;
     }
 
-    static WorldToMapImgY(worldY) {
+    static WorldToMapImgY(worldY)
+    {
         return (worldY + 231101.3928571428) / 242.5535714285714;
     }
 
-    static WorldToMapDivX(worldX) {
+    static WorldToMapDivX(worldX)
+    {
         return this.WorldToMapImgX(worldX) * mapScale;
     }
 
-    static WorldToMapDivY(worldY) {
+    static WorldToMapDivY(worldY)
+    {
         return this.WorldToMapImgY(worldY) * mapScale;
     }
 
-    static MapImgToWorldX(mapDivX) {
+    static MapImgToWorldX(mapDivX)
+    {
         return 241.041095890411 * mapDivX - 234002.2054794521;
     }
 
-    static MapImgToWorldY(mapDivY) {
+    static MapImgToWorldY(mapDivY)
+    {
         return 242.5535714285714 * mapDivY - 231101.3928571428;
     }
 
-    static UIPixelToWorldX(uiPixel) {
-        var mapDivX = this.UIPixelToMapImgX(uiPixel)
-        var worldX = this.MapImgToWorldX(mapDivX)
-        return worldX
+    static UIPixelToWorld(pixelCoords)
+    {
+        var coords = {}
+        coords = this.UIPixelToMapImg(pixelCoords);
+        coords[0] = this.MapImgToWorldX(coords[0])
+        coords[1] = this.MapImgToWorldY(coords[1])
+        return coords;
     }
 
-    static UIPixelToWorldY(uiPixel) {
-        var mapDivY = this.UIPixelToMapImgY(uiPixel)
-        var worldY = this.MapImgToWorldY(mapDivY)
-        return worldY
-    }
-
-    static UIPixelToMapImgX(uiPixel) {
+    static UIPixelToMapImg(pixelCoords)
+    {
         var mapdiv = document.getElementById('mapdiv');
-        uiPixel = uiPixel - parseInt(mapdiv.style.left);
-        uiPixel = uiPixel / mapScale;
-        return uiPixel;
-    }
-
-    static UIPixelToMapImgY(uiPixel) {
-        var mapdiv = document.getElementById('mapdiv');
-        uiPixel = uiPixel - parseInt(mapdiv.style.top);
-        uiPixel = uiPixel / mapScale;
-        return uiPixel;
+        var coords = {}
+        coords[0] = (pixelCoords[0] - parseInt(mapdiv.style.left)) / mapScale;
+        coords[1] = (pixelCoords[1] - parseInt(mapdiv.style.top)) / mapScale;
+        if (mapOrientation != 0)
+        {
+            coords = this.AdjustCoordinatesForReversedMapOrientation(coords)
+        }
+        return coords;
     }
 
     static UIPixelToMapDivX(uiPixel) //Takes a coordinate in UI space (ex. topleft is 0,0) and converts it to the current map div space for the map div. 

@@ -1,27 +1,28 @@
 /* Font imports: */
-@font-face {
+@font-face 
+{
     font-family: "Roboto";
     font-weight: 300;
     src: url("fonts/Roboto-Light.ttf") format("ttf");
 }
 
-@font-face {
+@font-face 
+{
     font-family: "Roboto";
     font-weight: 400;
     src: url("fonts/Roboto-Regular.ttf") format("ttf");
 }
 
 
-* {
+* 
+{
     box-sizing: border-box;
 }
 
 img,
 label,
 div
-
-/*disable highlighting/selecting for img, label, and divs*/
-    {
+{
     -khtml-user-select: none;
     -o-user-select: none;
     -moz-user-select: none;
@@ -29,22 +30,22 @@ div
     user-select: none;
 }
 
-body {
-    background-color: rgb(45, 106, 175);
+body 
+{
+    background-color: rgb(21, 85, 186);
     /*Ocean color*/
     overflow: hidden;
     /*No scrollbar*/
 }
 
 label
-
-/*make all text white & bold*/
-    {
+{
     color: #FFF;
     font-weight: bold;
 }
 
-#legend-background {
+#legend-background 
+{
     position: absolute;
     z-index: 5;
     width: 300px;
@@ -52,10 +53,11 @@ label
     top: 20px;
     backdrop-filter: blur(40px);
     height: 200px;
-    background: rgba(0, 0, 0, 0.164);
+    background: rgba(0, 0, 0, 0.45);
 }
 
-#legend {
+#legend 
+{
     width: 300px;
     padding-bottom: 20px;
     border-radius: 3px;
@@ -67,7 +69,8 @@ label
     top: 20px;
 }
 
-#legend-header {
+#legend-header 
+{
     font-family: 'Roboto', sans-serif;
     font-weight: 300;
     height: 32px;
@@ -80,7 +83,8 @@ label
     background-color: #0984e3;
 }
 
-#legend-key {
+#legend-key 
+{
     font-weight: 300;
     margin-top: 7px;
     align-content: center;
@@ -90,27 +94,38 @@ label
     width: 100%;
 }
 
-#legend-key>div.legend-key-child {
+.legend-key-child:hover
+{
+    background-color: rgba(255,255,255,0.25);
+}
+
+#legend-key>div.legend-key-child 
+{
     display: block;
     white-space: nowrap;
 }
 
-#legend-key>div.legend-key-child>img.legend-check {
+#legend-key>div.legend-key-child>img.legend-check 
+{
     float: right;
     line-height: 28px;
     height: 28px;
+    margin-top:4px;
 }
 
-#legend-key>div.legend-key-child>.name {
+#legend-key>div.legend-key-child>.name 
+{
     float: left;
 }
 
-#legend-key>div.legend-key-child>.name>img {
+#legend-key>div.legend-key-child>.name>img 
+{
     line-height: 28px;
     height: 28px;
 }
 
-#legend-key>div.legend-key-child>.name>label {
+#legend-key>div.legend-key-child>.name>label 
+{
     line-height: 28px;
     height: 28px;
     font-family: 'Roboto', sans-serif;
@@ -118,7 +133,8 @@ label
 }
 
 
-.legend-img {
+.legend-img 
+{
     width: 24px;
     height: 24px;
     position: relative;
@@ -127,19 +143,15 @@ label
     margin-right: 5px;
 }
 
-#mapimg {
+#mapimg 
+{
     z-index: 1;
     position: relative;
     vertical-align: top;
 }
 
-#mapdiv {
-    transition-property: left top;
-    transition-duration: 0.5s;
-    transition-timing-function: ease-in;
-}
-
-#playermarker {
+#playermarker 
+{
     z-index: 5;
     position: absolute;
     width: 32px;
@@ -148,7 +160,8 @@ label
     left: 0px;
 }
 
-#destinationmarker {
+#destinationmarker 
+{
     z-index: 3;
     position: absolute;
     top: 0px;
@@ -162,20 +175,23 @@ label
     width: 24px;
     height: 24px;
     position: absolute;
+    filter: drop-shadow(-1px -1px 0 black) 
+            drop-shadow( 1px -1px 0 black)
+            drop-shadow(-1px  1px 0 black) 
+            drop-shadow( 1px  1px 0 black);
 }
 
 ul,
 li
-
-/*Remove indentation from menu options*/
-    {
+{
     list-style-type: none;
     list-style-position: inside;
     margin: 0;
     padding: 0;
 }
 
-.menu {
+.menu 
+{
     padding-top: 5px;
     padding-bottom: 5px;
     border-radius: 5px;
@@ -188,11 +204,13 @@ li
     z-index: 10;
 }
 
-.menu-options {
+.menu-options 
+{
     list-style: none;
 }
 
-.menu-option {
+.menu-option 
+{
     padding-left: 5px;
     padding-right: 5px;
     font-weight: bold;
@@ -201,6 +219,7 @@ li
     cursor: pointer;
 }
 
-.menu-option:hover {
+.menu-option:hover 
+{
     background: rgba(200, 200, 200, 0.4);
 }
