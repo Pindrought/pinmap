@@ -14,7 +14,11 @@
 		"client/web/map.png",
 		"client/web/playermarker.png",
 		"client/web/destination.png",
-		"client/web/market.png",
-		"client/web/gunstore.png"
+		"client/web/icons/check.png",
+		"client/web/icons/shield.png",
+		"client/web/icons/shopping-cart.png",
+		"client/web/icons/x.png",
+		"client/web/fonts/Roboto-Regular.ttf",
+		"client/web/fonts/Roboto-Light.ttf"
 	]
 }
