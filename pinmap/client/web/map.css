@@ -65,6 +65,7 @@ label
     align-content: center;
     z-index: 6;
     position: absolute;
+    display: block;
     right: 20px;
     top: 20px;
 }
@@ -181,7 +182,7 @@ label
             drop-shadow( 1px  1px 0 black);
 }
 
-ul,
+ol,
 li
 {
     list-style-type: none;

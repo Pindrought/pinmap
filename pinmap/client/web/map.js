@@ -49,7 +49,7 @@ function OnLoad()
     if (runningFromBrowser) //Setup stuff that game would normally set up for testing in browser
     {
         AssignParameters(window.innerWidth, window.innerHeight);
-        RegisterLegendKey('market', 'MarketAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', 'icons/shopping-cart.png');
+        RegisterLegendKey('market', 'Market', 'icons/shopping-cart.png');
         RegisterBlip('market', 129000, 78521);
 
         RegisterLegendKey('gunstore', 'Gun Store', 'icons/shield.png');
@@ -307,6 +307,26 @@ function RefreshPlayerMarker() //Called when map is resized to reposition player
     playerMarker.style.top = (coords[1] * mapScale - 16) + 'px';
 }
 
+function GetLabelWidth(label)
+{
+    text = document.createElement("span"); 
+    document.body.appendChild(text); 
+
+    text.style.font = label.style.fontFamily;
+    text.style.fontSize = label.style.fontSize;
+    text.style.height = 'auto'; 
+    text.style.width = 'auto'; 
+    text.style.position = 'absolute'; 
+    text.style.whiteSpace = 'no-wrap'; 
+    text.innerHTML = label.textContent; 
+
+    width = Math.ceil(text.clientWidth); 
+    formattedWidth = width; 
+
+    document.body.removeChild(text); 
+    return formattedWidth;
+}
+
 function RegisterLegendKey(id, text, iconpath) //This should be called by main.lua via ExecuteJS for setting up a new legend key
 {
     var key = [];
@@ -338,9 +358,19 @@ function RegisterLegendKey(id, text, iconpath) //This should be called by main.l
     var label = document.createElement('label') //create label for legend key text
     label.htmlFor = checkbox.id;
     label.textContent = text;
+    var labelWidth = GetLabelWidth(label);
 
     var clearDiv = document.createElement('div');
     clearDiv.style.clear = 'both';
+
+
+    var legendDiv = document.getElementById('legend')
+    var keyWidth = 28 + 28 + GetLabelWidth(label) + 20;
+    if (parseInt(legendDiv.offsetWidth) < keyWidth)
+    {
+        legendDiv.style.width = keyWidth + 'px';
+        document.getElementById('legend-background').style.width = keyWidth + "px";
+    }
 
     keyName.appendChild(img);
     keyName.appendChild(label);
@@ -351,6 +381,10 @@ function RegisterLegendKey(id, text, iconpath) //This should be called by main.l
 
     legendKeyDiv.appendChild(keyDiv);
     document.getElementById('legend-background').style.height = document.getElementById('legend').offsetHeight + "px";
+    var a = checkbox.style.width;
+    var b = img.style.width;
+    var c = label.style.width;
+    var d = keyName.style.width;
 }
 
 function RegisterBlip(id, worldX, worldY) //This should be called by main.lua via ExecuteJS for setting up a new blip AFTER the legend key for this "id" has been assigned.
