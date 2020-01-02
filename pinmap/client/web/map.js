@@ -337,10 +337,10 @@ function RefreshMap() //This is intended to be called after scaling the map to r
     mapX = mapX - dx;
     mapY = mapY- dy;
 
-    FixMapLocation();
+    FixMapLocation(); //Adjusts map location if it is going off screen
     mapdiv.style.left = (mapX) + 'px';
     mapdiv.style.top = (mapY) + 'px';
-    RefreshBlips();
+    RefreshBlips(); //Adjust blip locations for landmarks
 }
 
 function WorldToMapX(worldX)

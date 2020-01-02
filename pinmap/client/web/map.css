@@ -1,3 +1,8 @@
+label
+{
+    font-family: "Verdana";
+}
+
 img, label, div /*disable highlighting/selecting for img, label, and divs*/
 {
     -khtml-user-select: none;
@@ -27,7 +32,7 @@ label /*make all text white & bold*/
     border-radius: 20px; 
     text-align:center; 
     align-content: center; 
-    z-index:4; 
+    z-index:6; 
     position:absolute; 
     right:0; 
     top:20px;
@@ -46,6 +51,8 @@ label /*make all text white & bold*/
 
 #legend-key
 {
+    font-weight: normal;
+    margin-top: 7px;
     align-content: center; 
     text-align: left; 
     display:inline-block;
@@ -57,6 +64,8 @@ label /*make all text white & bold*/
     height: 24px;
     position: relative;
     top: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 #mapimg
@@ -68,8 +77,10 @@ label /*make all text white & bold*/
 
 #playermarker
 {
-    z-index:3; 
-    position:absolute; 
+    z-index:5; 
+    position:absolute;
+    width: 32px;
+    height: 32px;
     top:0px; 
     left:0px;
 }
