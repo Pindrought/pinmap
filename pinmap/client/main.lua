@@ -14,7 +14,7 @@ end
 local function OnPackageStart()
 	local screenX, screenY = GetScreenSize()
 	gui = CreateWebUI(0, 0, 0, 0)
-	LoadWebFile(gui, "http://asset/pinmap/client/web/map.html")
+	LoadWebFile(gui, "http://asset/" .. GetPackageName() .. "/client/web/map.html")
 
 	SetWebAlignment(gui, 0, 0)
 	SetWebAnchors(gui, 0.1, 0.1, 0.9, 0.9) --Set up my web ui to take up the center 80% of the screen
