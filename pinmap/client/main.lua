@@ -30,19 +30,25 @@ function InitializeMapValues() --This will send the width/height of the map whic
 	jsString = "AssignParameters(" .. mapWidth .. "," .. mapHeight ..");"
 	ExecuteWebJS(gui, jsString)
 
-	ExecuteWebJS(gui, "RegisterLegendKey('market', 'Market', 'market.png');")
-	ExecuteWebJS(gui, "RegisterBlip('market', 129000, 78521);")
-
-	ExecuteWebJS(gui, "RegisterLegendKey('gunstore', 'Gun Store', 'gunstore.png');")
-	ExecuteWebJS(gui, "RegisterBlip('gunstore', 101527, -34633);")
-	ExecuteWebJS(gui, "RegisterBlip('gunstore', 135200, 192240);")
-	uiLoaded = true
 	if (devMode) then
 		ExecuteWebJS(gui, "EnableDevMode();") --When EnableDevMode() is called in the js, it adds the menu option for "Teleport Here" in the right click menu on the map
 	end
+	
+	CallRemoteEvent("PinmapRequestLegend")
 
+	uiLoaded = true
 end
 AddEvent("OnMapUILoaded", InitializeMapValues) --This event is called by the map.js after the page is loaded. If we try to execute the web js before the page is loaded, it's invalid behavior.
+
+function PinmapRegisterLegendKey(id, displayText, iconPath)
+	ExecuteWebJS(gui, "RegisterLegendKey('" .. id .. "', '" .. displayText .. "', '" .. iconPath .. "');")
+end
+AddRemoteEvent("PinmapRegisterLegendKey", PinmapRegisterLegendKey)
+
+function PinmapRegisterBlip(id, x, y)
+	ExecuteWebJS(gui, "RegisterBlip('" .. id .. "', " .. x .. ", " .. y .. ");")
+end
+AddRemoteEvent("PinmapRegisterBlip", PinmapRegisterBlip)
 
 function PinmapEnableDevmode()
 	PinLog("Developer mode is enabled! This will allow players to teleport via the map feature. To turn off developer mode, please see the config.ini file in the Pinmap package!")
