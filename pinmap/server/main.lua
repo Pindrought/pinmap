@@ -81,7 +81,7 @@ local function PinmapRequestLegend(player)
     local kc = 0
     for i = 1, #legendKeys do
         CallRemoteEvent(player, "PinmapRegisterLegendKey", legendKeys[i].id,  legendKeys[i].displayText, legendKeys[i].iconPath)
-        for i, blip in ipairs(legendKeys[i].blips) do
+        for j, blip in ipairs(legendKeys[i].blips) do
             CallRemoteEvent(player, "PinmapRegisterBlip", legendKeys[i].id, blip.x, blip.y)
         end
     end
