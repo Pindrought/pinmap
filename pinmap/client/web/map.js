@@ -364,12 +364,19 @@ function RegisterLegendKey(id, text, iconpath) //This should be called by main.l
     clearDiv.style.clear = 'both';
 
 
-    var legendDiv = document.getElementById('legend')
+    
     var keyWidth = 28 + 28 + GetLabelWidth(label) + 20;
+    var legendDiv = document.getElementById('legend')
     if (parseInt(legendDiv.offsetWidth) < keyWidth)
     {
         legendDiv.style.width = keyWidth + 'px';
         document.getElementById('legend-background').style.width = keyWidth + "px";
+    }
+
+    if (legendDiv.style.visibility == "hidden")
+    {
+        legendDiv.style.visibility = "visible";
+        document.getElementById('legend-background').style.visibility = "visible";
     }
 
     keyName.appendChild(img);
