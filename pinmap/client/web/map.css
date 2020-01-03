@@ -182,7 +182,7 @@ label
             drop-shadow( 1px  1px 0 black);
 }
 
-ol,
+ul,
 li
 {
     list-style-type: none;
