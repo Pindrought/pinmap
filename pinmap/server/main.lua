@@ -5,6 +5,11 @@ local function PinLog(msg) --Just a custom log function that I use instead of pr
     print("[Pinmap] - " .. msg)
 end
 
+local function Test(msg)
+    print(msg)
+end
+AddEvent("Test", Test)
+
 local function OnPackageStart() 
     if not file_exists("packages/pinmap/config.ini") then
         return PinLog("Failed to load the config.ini file! Critical Error!")

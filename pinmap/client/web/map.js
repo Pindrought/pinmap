@@ -24,6 +24,7 @@ var windowHeight = 0;
 var runningFromBrowser = true;
 var mapOrientation = 0; //Default is 0, but if you want to change it to rotate the map, here is where you would do that. Expected input is in degrees. ex. 90
 
+
 function OnLoad()
 {
     if (typeof ue !== 'undefined') //Determine if we're running from browser. If this is not undefined, we are running from game.
@@ -455,30 +456,16 @@ function LegendKeyClick(id) //This is called from one of the checkboxes that eac
     {
         element.style.visibility = !checked ? 'visible' : 'hidden';
     });
-    // var cb = document.getElementById('checkbox_'+id);
-    // var key = null;
-    // legendKeys.forEach(e => //forEach loop to get the legend key that the id is tied to
-    // {
-    //     if (e.id == id)
-    //     {
-    //         key = e;
-    //     }
-    // });
-    // //If checked, show all blips, if unchecked, hide all blips
-    // if (cb.checked == true)
-    // {
-    //     key.blips.forEach(element => 
-    //     {
-    //         element.style.visibility = 'visible';
-    //     });
-    // }
-    // else
-    // {
-    //     key.blips.forEach(element => 
-    //     {
-    //         element.style.visibility = 'hidden';
-    //     });
-    // }
+
+    var showKey = !checked;
+    if (showKey == true)
+    {
+        CallEvent("PinmapShowKey", legend_id)
+    }
+    else
+    {
+        CallEvent("PinmapHideKey", legend_id)
+    }
 }
 
 function UpdatePlayerPosition(worldX, worldY, worldZ, angle) //Called from map.lua - updates the player marker location/rotation

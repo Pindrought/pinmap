@@ -3,9 +3,11 @@ function OnScriptError(message) --Standard copy&paste code from onset lua script
 end
 AddEvent("OnScriptError", OnScriptError)
 
-local gui = nil
+local mapGui = nil
+local miniMapGui = nil
 local devMode = false
-local uiLoaded = false
+local mapUILoaded = false
+local minimapUILoaded
 
 local function PinLog(msg) --I use this instead of the default AddPlayerChat just so it looks pretty and makes it clear what package my messages are from
 	AddPlayerChat('<span color="#33DD33" style="bold" size="12">[Pinmap]</> - ' .. msg)
@@ -13,13 +15,27 @@ end
 
 local function OnPackageStart()
 	local screenX, screenY = GetScreenSize()
-	gui = CreateWebUI(0, 0, 0, 0)
-	LoadWebFile(gui, "http://asset/pinmap/client/web/map.html")
+	mapGui = CreateWebUI(0, 0, 0, 0)
+	LoadWebFile(mapGui, "http://asset/pinmap/client/web/map.html")
 
-	SetWebAlignment(gui, 0, 0)
-	SetWebAnchors(gui, 0.1, 0.1, 0.9, 0.9) --Set up my web ui to take up the center 80% of the screen
+	SetWebAlignment(mapGui, 0, 0)
+	SetWebAnchors(mapGui, 0.1, 0.1, 0.9, 0.9) --Set up my web ui to take up the center 80% of the screen
 
-	SetWebVisibility(gui, WEB_HIDDEN)
+    SetWebVisibility(mapGui, WEB_HIDDEN)
+    
+    local minimapWidth = 300
+    local minimapHeight = 300
+    local minX = 0 + 30/screenX
+    local maxX = 0 + 30/screenX + minimapWidth/screenX
+    local minY = 1 - minimapHeight/screenY - 30/screenY
+    local maxY = 1 - 30/screenY
+	miniMapGui = CreateWebUI(0, 0, 0, 0, 0, 30)
+	LoadWebFile(miniMapGui, "http://asset/pinmap/client/web/minimap.html")
+
+	SetWebAlignment(miniMapGui, 0, 0)
+	SetWebAnchors(miniMapGui, minX, minY, maxX, maxY) --Set up my web ui to take up the center 80% of the screen
+
+	SetWebVisibility(miniMapGui, WEB_HITINVISIBLE)
 end
 AddEvent("OnPackageStart", OnPackageStart)
 
@@ -28,33 +44,55 @@ function InitializeMapValues() --This will send the width/height of the map whic
 	mapWidth = screenX * 0.8
 	mapHeight = screenY * 0.8
 	jsString = "AssignParameters(" .. mapWidth .. "," .. mapHeight ..");"
-	ExecuteWebJS(gui, jsString)
+	ExecuteWebJS(mapGui, jsString)
 
 	if (devMode) then
-		ExecuteWebJS(gui, "EnableDevMode();") --When EnableDevMode() is called in the js, it adds the menu option for "Teleport Here" in the right click menu on the map
+		ExecuteWebJS(mapGui, "EnableDevMode();") --When EnableDevMode() is called in the js, it adds the menu option for "Teleport Here" in the right click menu on the map
 	end
 	
-	CallRemoteEvent("PinmapRequestLegend")
-
-	uiLoaded = true
+    mapUILoaded = true
+    if (minimapUILoaded) then
+        CallRemoteEvent("PinmapRequestLegend")
+    end
 end
 AddEvent("OnMapUILoaded", InitializeMapValues) --This event is called by the map.js after the page is loaded. If we try to execute the web js before the page is loaded, it's invalid behavior.
 
+function InitializeMinimapValues() --This will send the width/height of the map which will be used by the WebUI to make sure user does not drag map off screen as well as send the legend info
+    minimapUILoaded = true
+    if (mapUILoaded) then
+        CallRemoteEvent("PinmapRequestLegend")
+    end
+end
+AddEvent("OnMinimapUILoaded", InitializeMinimapValues) --This event is called by the map.js after the page is loaded. If we try to execute the web js before the page is loaded, it's invalid behavior.
+
+
 function PinmapRegisterLegendKey(id, displayText, iconPath)
-	ExecuteWebJS(gui, "RegisterLegendKey('" .. id .. "', '" .. displayText .. "', '" .. iconPath .. "');")
+    ExecuteWebJS(mapGui, "RegisterLegendKey('" .. id .. "', '" .. displayText .. "', '" .. iconPath .. "');")
+	ExecuteWebJS(miniMapGui, "RegisterLegendKey('" .. id .. "', '" .. displayText .. "', '" .. iconPath .. "');")
 end
 AddRemoteEvent("PinmapRegisterLegendKey", PinmapRegisterLegendKey)
 
 function PinmapRegisterBlip(id, x, y)
-	ExecuteWebJS(gui, "RegisterBlip('" .. id .. "', " .. x .. ", " .. y .. ");")
+    ExecuteWebJS(mapGui, "RegisterBlip('" .. id .. "', " .. x .. ", " .. y .. ");")
+	ExecuteWebJS(miniMapGui, "RegisterBlip('" .. id .. "', " .. x .. ", " .. y .. ");")
 end
 AddRemoteEvent("PinmapRegisterBlip", PinmapRegisterBlip)
+
+function PinmapShowKey(key)
+    ExecuteWebJS(miniMapGui, "ShowKey('" .. key .. "');")
+end
+AddEvent("PinmapShowKey", PinmapShowKey)
+
+function PinmapHideKey(key)
+    ExecuteWebJS(miniMapGui, "HideKey('" .. key .. "');")
+end
+AddEvent("PinmapHideKey", PinmapHideKey)
 
 function PinmapEnableDevmode()
 	PinLog("Developer mode is enabled! This will allow players to teleport via the map feature. To turn off developer mode, please see the config.ini file in the Pinmap package!")
 	devMode = true
-	if (uiLoaded) then
-		ExecuteWebJS(gui, "EnableDevMode();") --When EnableDevMode() is called in the js, it adds the menu option for "Teleport Here" in the right click menu on the map
+	if (mapUILoaded) then
+		ExecuteWebJS(mapGui, "EnableDevMode();") --When EnableDevMode() is called in the js, it adds the menu option for "Teleport Here" in the right click menu on the map
 	end
 end
 AddRemoteEvent("PinmapEnableDevmode", PinmapEnableDevmode) --Server will send this event if dev mode is enabled in server config
@@ -101,6 +139,20 @@ AddEvent("RequestTeleportToLocation", RequestTeleportToLocation) --This event is
 
 local isMapOpen = false
 local timeMapClosed = GetTimeSeconds() --Store the last time map was closed
+local zoomTimer = nil
+local zoomScale = 1
+local zoomFactor = 1
+function ProcessZoom()
+    zoomScale = zoomScale * zoomFactor
+    if (zoomScale < 0.16) then
+        zoomScale = 0.16;
+    end
+    if (zoomScale > 3) then
+        zoomScale = 3
+    end
+    ExecuteWebJS(miniMapGui, "UpdateZoomScale(" .. zoomScale .. ");")
+end
+
 function OnKeyPress(key)
 	if (key == "M") then
 		dt = GetTimeSeconds() - timeMapClosed
@@ -112,13 +164,37 @@ function OnKeyPress(key)
 		else
 			isMapOpen = true
 			UpdatePositionOnMap()
-			SetWebVisibility(gui, WEB_VISIBLE)
+            SetWebVisibility(mapGui, WEB_VISIBLE)
+			SetWebVisibility(miniMapGui, WEB_HIDDEN)
 			SetInputMode(INPUT_GAMEANDUI)
 			ShowMouseCursor(true)
 		end
-	end
+    end
+    if (key == "Num +") then
+        if (zoomTimer ~= nil) then
+            DestroyTimer(zoomTimer)
+        end
+        zoomFactor = 1/0.94
+        zoomTimer = CreateTimer(ProcessZoom, 20);
+    end
+    if (key == "Num -") then
+        if (zoomTimer ~= nil) then
+            DestroyTimer(zoomTimer)
+        end
+        zoomFactor = 0.94
+        zoomTimer = CreateTimer(ProcessZoom, 20);
+    end
 end
 AddEvent("OnKeyPress", OnKeyPress)
+
+function OnKeyRelease(key)
+    if (key == "Num +" or key == "Num -") then
+        if (zoomTimer ~= nil) then
+            DestroyTimer(zoomTimer)
+        end
+    end
+end
+AddEvent("OnKeyRelease", OnKeyRelease)
 
 local destinationWP = nil
 function UpdateMapDestination(worldX, worldY)
@@ -126,12 +202,14 @@ function UpdateMapDestination(worldX, worldY)
 	if (destinationWP ~= nil) then --If we have an existing waypoint, destroy it before creating this new one
 		DestroyWaypoint(destinationWP)
 	end
-	destinationWP = CreateWaypoint(worldX, worldY, worldZ, "Destination")
+    destinationWP = CreateWaypoint(worldX, worldY, worldZ, "Destination")
+    ExecuteWebJS(miniMapGui, "UpdateDestination(" .. worldX .. "," .. worldY .. ");")
 end
 AddEvent("UpdateMapDestination", UpdateMapDestination)
 
 function ClearMapDestination()
-	if (destinationWP ~= nil) then
+    if (destinationWP ~= nil) then
+        ExecuteWebJS(miniMapGui, "ClearDestination();")
 		DestroyWaypoint(destinationWP)
 		destinationWP = nil
 	end
@@ -146,13 +224,23 @@ function UpdatePositionOnMap()
 			heading = heading + 360
 		end
 		jsString = "UpdatePlayerPosition(" .. x .. "," .. y .. "," .. z .. "," .. heading .. ");"
-		ExecuteWebJS(gui, jsString)
+        ExecuteWebJS(mapGui, jsString)
+    else
+        local x, y, z = GetPlayerLocation()
+        _, heading = GetCameraRotation()
+        heading = heading + 90
+		if (heading < 0) then
+			heading = heading + 360
+		end
+		jsString = "UpdatePlayerPosition(" .. x .. "," .. y .. "," .. z .. "," .. heading .. ");"
+        ExecuteWebJS(miniMapGui, jsString)
 	end
 end
-CreateTimer(UpdatePositionOnMap, 250)
+CreateTimer(UpdatePositionOnMap, 50)
 
 function CloseMap()
-	SetWebVisibility(gui, WEB_HIDDEN)
+    SetWebVisibility(mapGui, WEB_HIDDEN)
+	SetWebVisibility(miniMapGui, WEB_VISIBLE)
 	SetInputMode(INPUT_GAME)
 	timeMapClosed = GetTimeSeconds()
 	isMapOpen = false

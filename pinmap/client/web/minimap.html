@@ -2,7 +2,7 @@
  <!DOCTYPE html>
  <html>
      <head>
-         <link rel="stylesheet" type="text/css" href="map.css">
+         <link rel="stylesheet" type="text/css" href="minimap.css">
          <style>
              .inner-border::-webkit-scrollbar { 
                 display: none; 
@@ -40,30 +40,29 @@
             }
         </script>
      </head>
-     <body>
-        <div id="legend-background" style="visibility: hidden;">
-    
-        </div>
-        <div id="legend" style="visibility: hidden;">
-            <label id="legend-header">Legend</label>
-    
-            <div id="legend-key">
+     <body style="margin:0px; padding:0px;">
+
+
+        <span class="dot"></span> <!--Player Dot-->
+
+        <div id="minimapcontainer">
+            <div id="maskdiv" style="background-color: rgb(21, 85, 186); position:absolute; left:0px; top:0px; clip-path: ellipse(128px 128px at 130px 130px);">
+                <canvas id="backgroundMaskCanvas" style="position:absolute; left:0px; top:0px; width:300px; height:300px;"></canvas> <!--This canvas only exists so that the background of the ocean will be filled in when the map goes off edge!-->
+                <div id="minimapdiv" style="position: absolute; left:-1000px; top:-1000px;">
+                    <img src="map.jpg" style="z-index:1;" id="mapimg" draggable="false" />
+                </div>
+                <img src="destination.png" id="destinationmarker" draggable="false" style="display:none" />
             </div>
         </div>
-    
-        <div id="mapdiv" style="position: absolute; left:-40px; top:-431px;">
-            <img src="map.jpg" id="mapimg" draggable="false" />
-            <img src="playermarker.png" id="playermarker" draggable="false" />
-            <img src="destination.png" id="destinationmarker" draggable="false" style="display:none" />
-        </div>
-    
-        <div id="menu" class="menu" style="display:none;">
-            <ul id="menu-options" class="menu-options">
-                <li class="menu-option" onclick="MenuOptionClicked('SetDestination');">Set Destination</li>
-                <li class="menu-option" onclick="MenuOptionClicked('ClearDestination');">Clear Destination</li>
-            </ul>
-        </div>
-    
-        <script type="text/javascript" src="map.js"></script>
-    </body>
+
+
+        <script type="text/javascript" src="minimap.js"></script>
+
+     </body>
+     <!-- <body id = "minimapcontainer" style="background-color: #FFF;">
+        <span draggable="false" class="dot" style="position:absolute; left: 42px; top: 42px; z-index:10; display: inline-block;">
+
+        
+
+    </body> -->
  </html>
