@@ -4,8 +4,8 @@ window.onload = OnLoad;
 //The "legendKeys" array stores all of the keys that appear on the legend. Each key element also stores an array of "blips" that can appear on the map if the legend key is enabled.
 var legendKeys = []; //Legend keys
 //Map width/height is required in order for the scaling to be properly applied.
-var mapWidth = 2000;
-var mapHeight = 1943;
+var mapWidth = 9330;
+var mapHeight = 7686;
 //Mouse x,y are stored for things like scrolling to scroll towards/out from a certain position
 var mousePosX = 0;
 var mousePosY = 0;
@@ -17,7 +17,7 @@ var minimapdivStartDragX = 0;
 var minimapdivStartDragY = 0;
 var minimapdivX = -40;
 var minimapdivY = -431;
-var mapScale = 1;
+var mapScale = 0.4;
 //runningFromBrowser will be determined OnLoad and special logic can be called for debugging via browser
 var runningFromBrowser = true;
 var mapOrientation = 0; //Default is 0, but if you want to change it to rotate the map, here is where you would do that. Expected input is in degrees. ex. 90
@@ -333,32 +333,32 @@ class MapHelper //Map Helper class for all of the map math calculations
 
     static WorldToMapImgX(worldX)
     {
-        return (worldX + 234002.2054794521) / 241.041095890411;
+        return (worldX + 296081.19037937) / 63.75510665385778083697;
     }
 
     static WorldToMapImgY(worldY)
     {
-        return (worldY + 231101.3928571428) / 242.5535714285714;
+        return (worldY + 245811.12515433402381) / 64.11424964996392719;
     }
 
-    static WorldTominimapdivX(worldX)
+    static WorldToMapDivX(worldX)
     {
         return this.WorldToMapImgX(worldX) * mapScale;
     }
 
-    static WorldTominimapdivY(worldY)
+    static WorldToMapDivY(worldY)
     {
         return this.WorldToMapImgY(worldY) * mapScale;
     }
 
-    static MapImgToWorldX(minimapdivX)
+    static MapImgToWorldX(mapDivX)
     {
-        return 241.041095890411 * minimapdivX - 234002.2054794521;
+        return 63.75510665385778083697 * mapDivX - 296081.19037937;
     }
 
-    static MapImgToWorldY(minimapdivY)
+    static MapImgToWorldY(mapDivY)
     {
-        return 242.5535714285714 * minimapdivY - 231101.3928571428;
+        return 64.11424964996392719 * mapDivY - 245811.12515433402381;
     }
 
     static UIPixelToWorld(pixelCoords)
