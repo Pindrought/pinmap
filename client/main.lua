@@ -168,7 +168,7 @@ function OnKeyPress(key)
 			CloseMap()
 		else
 			isMapOpen = true
-			UpdatePositionOnMap()
+			UpdatePositionOnMap(true)
             SetWebVisibility(mapGui, WEB_VISIBLE)
 			SetWebVisibility(miniMapGui, WEB_HIDDEN)
 			SetInputMode(INPUT_GAMEANDUI)
@@ -221,24 +221,38 @@ function ClearMapDestination()
 end
 AddEvent("ClearMapDestination", ClearMapDestination)
 
-function UpdatePositionOnMap()
+local lastloc = {0, 0, 0, 0}
+--local nb = 0
+function UpdatePositionOnMap(open)
 	if (isMapOpen == true) then
 		local x, y, z = GetPlayerLocation()
-		heading = GetPlayerHeading() + 90
-		if (heading < 0) then
-			heading = heading + 360
-		end
-		jsString = "UpdatePlayerPosition(" .. x .. "," .. y .. "," .. z .. "," .. heading .. ");"
-        ExecuteWebJS(mapGui, jsString)
+		local h = GetPlayerHeading()
+		if (math.floor(x) ~= lastloc[1] or math.floor(y) ~= lastloc[2] or math.floor(z) ~= lastloc[3] or h ~= lastloc[4] or open) then
+			heading = h + 90
+			if (heading < 0) then
+				heading = heading + 360
+			end
+			jsString = "UpdatePlayerPosition(" .. x .. "," .. y .. "," .. z .. "," .. heading .. ");"
+			ExecuteWebJS(mapGui, jsString)
+			--nb = nb + 1
+			--AddPlayerChat("Called_map " .. tostring(nb))
+			lastloc = {math.floor(x), math.floor(y), math.floor(z), h}
+	    end
     else
         local x, y, z = GetPlayerLocation()
-        _, heading = GetCameraRotation()
-        heading = heading + 90
-		if (heading < 0) then
-			heading = heading + 360
-		end
-		jsString = "UpdatePlayerPosition(" .. x .. "," .. y .. "," .. z .. "," .. heading .. ");"
-        ExecuteWebJS(miniMapGui, jsString)
+		_, heading = GetCameraRotation()
+		local h = heading
+		if (math.floor(x) ~= lastloc[1] or math.floor(y) ~= lastloc[2] or math.floor(z) ~= lastloc[3] or h ~= lastloc[4]) then
+			heading = heading + 90
+			if (heading < 0) then
+				heading = heading + 360
+			end
+			jsString = "UpdatePlayerPosition(" .. x .. "," .. y .. "," .. z .. "," .. heading .. ");"
+			ExecuteWebJS(miniMapGui, jsString)
+			--nb = nb + 1
+			--AddPlayerChat("Called_ " .. tostring(nb))
+			lastloc = {math.floor(x), math.floor(y), math.floor(z), h}
+	    end
 	end
 end
 CreateTimer(UpdatePositionOnMap, 50)

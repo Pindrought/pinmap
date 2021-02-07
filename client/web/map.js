@@ -3,8 +3,8 @@ window.onload = OnLoad;
 //The "legendKeys" array stores all of the keys that appear on the legend. Each key element also stores an array of "blips" that can appear on the map if the legend key is enabled.
 var legendKeys = []; //Legend keys
 //Map width/height is required in order for the scaling to be properly applied.
-var mapWidth = 2000;
-var mapHeight = 1943;
+var mapWidth = 9330;
+var mapHeight = 7686;
 //Mouse x,y are stored for things like scrolling to scroll towards/out from a certain position
 var mousePosX = 0;
 var mousePosY = 0;
@@ -16,7 +16,7 @@ var mapDivStartDragX = 0;
 var mapDivStartDragY = 0;
 var mapDivX = -40;
 var mapDivY = -431;
-var mapScale = 1;
+var mapScale = 0.4;
 //Window Width & Height are used by the FixMapLocation() function to ensure that the map does not get dragged off the screen boundaries.
 var windowWidth = 0;
 var windowHeight = 0;
@@ -56,6 +56,7 @@ function OnLoad()
         RegisterLegendKey('gunstore', 'Gun Store', 'icons/shield.png');
         RegisterBlip('gunstore', 101527, -34633);
         RegisterBlip('gunstore', 135200, 192240);
+        RegisterBlip('gunstore', -169052, -39452);
         EnableDevMode();
     }
     
@@ -131,14 +132,14 @@ function MouseScroll(e)
     var prevMapScale = mapScale; //Store previous map scale so this can be passed to RefreshMap() - This is used to calculate the new factor for adjusting the map after zoom
     if (delta == -1) //zooming in
     {
-        if (mapScale < 3.0)
+        if (mapScale < 1.6)
         {
             mapScale = mapScale / 0.8;
         }
     }
     else //zooming out
     {
-        if (mapScale > 0.3)
+        if (mapScale > 0.2)
         {
             mapScale = mapScale * 0.8;
         }
@@ -527,12 +528,12 @@ class MapHelper //Map Helper class for all of the map math calculations
 
     static WorldToMapImgX(worldX)
     {
-        return (worldX + 234002.2054794521) / 241.041095890411;
+        return (worldX + 300000) / 64.34375;
     }
 
     static WorldToMapImgY(worldY)
     {
-        return (worldY + 231101.3928571428) / 242.5535714285714;
+        return (worldY + 247000.12515433402381) / 64.302703617;
     }
 
     static WorldToMapDivX(worldX)
@@ -547,12 +548,12 @@ class MapHelper //Map Helper class for all of the map math calculations
 
     static MapImgToWorldX(mapDivX)
     {
-        return 241.041095890411 * mapDivX - 234002.2054794521;
+        return 64.34375 * mapDivX - 300000;
     }
 
     static MapImgToWorldY(mapDivY)
     {
-        return 242.5535714285714 * mapDivY - 231101.3928571428;
+        return 64.302703617 * mapDivY - 247000.12515433402381;
     }
 
     static UIPixelToWorld(pixelCoords)
