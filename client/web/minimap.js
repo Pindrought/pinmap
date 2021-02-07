@@ -333,12 +333,12 @@ class MapHelper //Map Helper class for all of the map math calculations
 
     static WorldToMapImgX(worldX)
     {
-        return (worldX + 296081.19037937) / 63.75510665385778083697;
+        return (worldX + 300000) / 64.34375;
     }
 
     static WorldToMapImgY(worldY)
     {
-        return (worldY + 245811.12515433402381) / 64.11424964996392719;
+        return (worldY + 247000.12515433402381) / 64.302703617;
     }
 
     static WorldToMapDivX(worldX)
@@ -353,12 +353,12 @@ class MapHelper //Map Helper class for all of the map math calculations
 
     static MapImgToWorldX(mapDivX)
     {
-        return 63.75510665385778083697 * mapDivX - 296081.19037937;
+        return 64.34375 * mapDivX - 300000;
     }
 
     static MapImgToWorldY(mapDivY)
     {
-        return 64.11424964996392719 * mapDivY - 245811.12515433402381;
+        return 64.302703617 * mapDivY - 247000.12515433402381;
     }
 
     static UIPixelToWorld(pixelCoords)
